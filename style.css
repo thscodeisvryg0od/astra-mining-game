@@ -346,3 +346,52 @@ body {
 .nav-item.active {
     color: #a855f7; /* Aktif menü mor parlaması */
 }
+/* ==========================================
+   7. DİL SEÇİCİ (DROPDOWN) TASARIMI
+   ========================================== */
+.language-selector {
+    position: relative;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 6px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.active-flag {
+    font-size: 1.2rem;
+}
+
+.lang-dropdown {
+    display: none; /* Varsayılan olarak gizli */
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background: #14171a;
+    border: 1px solid #22252a;
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    width: 80px;
+}
+
+.lang-dropdown.show {
+    display: block; /* Tıklanınca görünür yap */
+}
+
+.lang-option {
+    padding: 10px;
+    font-size: 0.9rem;
+    text-align: center;
+    color: #ffffff;
+    transition: background 0.2s;
+}
+
+.lang-option:hover, .lang-option:active {
+    background: rgba(168, 85, 247, 0.2);
+}
+
