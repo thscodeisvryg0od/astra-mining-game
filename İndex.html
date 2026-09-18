@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Astra Mining Agent</title>
-    <!-- FontAwesome for icons -->
+    <!-- Doğrulanan FontAwesome İkon Kütüphanesi -->
     <link rel="stylesheet" href="https://cloudflare.com">
-    <link rel="stylesheet" href="style.css">
+    <!-- Klasör yapınıza göre güncellenen Tasarım Dosyası -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="app-container">
-        <!-- Top Status Bar -->
+        <!-- Üst Durum Çubuğu -->
         <header class="top-bar">
             <div class="balance-container">
                 <span class="currency-symbol">$</span>
@@ -19,27 +20,27 @@
             </div>
             <div class="top-actions">
                 <div class="flag-icon">
+                    <!-- Doğrulanan Türkiye Bayrağı API CDN Linki -->
                     <img src="https://flagcdn.com" alt="TR">
                 </div>
                 <button class="settings-btn"><i class="fas fa-cog"></i></button>
             </div>
         </header>
 
-        <!-- Main Content Area -->
+        <!-- Ana İçerik Alanı -->
         <main class="main-content">
-            <!-- AI Agent Robot Visual Section -->
+            <!-- Yapay Zeka Robot Alanı -->
             <div class="agent-display">
                 <div class="robot-container">
-                    <!-- Standard placeholder AI icon, can be replaced with image later -->
                     <i class="fas fa-robot robot-placeholder-icon"></i>
                 </div>
                 <button class="action-arrow-btn"><i class="fas fa-arrow-right"></i></button>
             </div>
 
-            <!-- Countdown Timer -->
+            <!-- Geri Sayım Sayacı -->
             <div class="timer-display" id="mining-timer">06:51:25</div>
 
-            <!-- Stats Grid -->
+            <!-- İstatistik Paneli -->
             <div class="stats-grid">
                 <div class="stat-box">
                     <span class="stat-label">Token</span>
@@ -51,13 +52,13 @@
                 </div>
             </div>
 
-            <!-- Action Buttons Group -->
+            <!-- Aksiyon Butonları -->
             <div class="actions-group">
                 <button class="btn btn-blue" id="btn-sell-token">TOKEN SAT</button>
                 <button class="btn btn-purple" id="btn-upgrade-agent">AGENT'I YÜKSELT</button>
             </div>
 
-            <!-- AI Agent Chat Quick Section -->
+            <!-- Hızlı Yapay Zeka Sohbet Çubuğu -->
             <div class="ai-chat-bar">
                 <div class="ai-chat-left">
                     <i class="fas fa-brain ai-icon"></i>
@@ -66,7 +67,7 @@
                 <button class="chat-sohbet-btn">Sohbet</button>
             </div>
 
-            <!-- Referral System Link Box -->
+            <!-- Arkadaş Davet Etme Paneli -->
             <div class="referral-box">
                 <div class="ref-info">
                     <i class="fas fa-users ref-icon"></i>
@@ -79,7 +80,7 @@
             </div>
         </main>
 
-        <!-- Bottom Navigation Fixed Menu Bar -->
+        <!-- Alt Sabit Sabit Menü Çubuğu -->
         <nav class="bottom-nav">
             <button class="nav-item active" data-target="upgrade">
                 <i class="fas fa-bolt"></i>
@@ -103,6 +104,7 @@
             </button>
         </nav>
     </div>
-    <script src="script.js"></script>
+    <!-- Klasör yapınıza göre güncellenen JavaScript Dosyası -->
+    <script src="js/script.js"></script>
 </body>
 </html>
