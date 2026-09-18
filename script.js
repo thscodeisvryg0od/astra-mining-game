@@ -1,24 +1,71 @@
-// ==========================================
-// 1. OYUN DURUMU VE VERİ YÖNETİMİ
-// ==========================================
 const gameState = {
     usdBalance: 0.0012,
     tokenCount: 49.5766,
     powerAmount: 2110,
     referralCount: 0,
     referralTarget: 1,
-    // Toplam 7 saatlik (25200 saniye) madencilik süresi başlangıcı
-    miningSecondsLeft: 24685 
+    miningSecondsLeft: 24685,
+    currentLanguage: 'tr' // Varsayılan dil
 };
 
-// HTML Elemanlarını Seçme
+// Dil Sözlüğü Paketleri
+const translations = {
+    tr: {
+        token: "Token",
+        power: "Güç",
+        sell_btn: "TOKEN SAT",
+        upgrade_btn: "AGENT'I YÜKSELT",
+        ai_title: "AI Agent'ınız",
+        chat_btn: "Sohbet",
+        ref_title: "1 arkadaşınızı davet edin",
+        ref_reward: "+200 Güç",
+        nav_upgrade: "Yükselt",
+        nav_earn: "Kazan",
+        nav_ai: "AI",
+        nav_tasks: "Görevler",
+        nav_pay: "Ödeme",
+        alert_sell: "Token başarıyla satıldı!",
+        alert_upgrade: "Agent başarıyla yükseltildi!"
+    },
+    en: {
+        token: "Token",
+        power: "Power",
+        sell_btn: "SELL TOKEN",
+        upgrade_btn: "UPGRADE AGENT",
+        ai_title: "Your AI Agent",
+        chat_btn: "Chat",
+        ref_title: "Invite 1 friend",
+        ref_reward: "+200 Power",
+        nav_upgrade: "Upgrade",
+        nav_earn: "Earn",
+        nav_ai: "AI",
+        nav_tasks: "Tasks",
+        nav_pay: "Payment",
+        alert_sell: "Token successfully sold!",
+        alert_upgrade: "Agent successfully upgraded!"
+    }
+};
+
 const usdBalanceEl = document.getElementById('usd-balance');
 const tokenCountEl = document.getElementById('token-count');
 const powerAmountEl = document.getElementById('power-amount');
 const timerDisplayEl = document.getElementById('mining-timer');
 const refCountStatusEl = document.getElementById('ref-count-status');
 
-// Ekrandaki Değerleri Güncelleyen Fonksiyon
+// DİL DEĞİŞTİRME MOTORU
+function changeLanguage(lang) {
+    gameState.currentLanguage = lang;
+    document.getElementById('current-flag').textContent = lang === 'tr' ? '🇹🇷' : '🇺🇸';
+    
+    // data-lang niteliğine sahip tüm elemanları bul ve sözlüğe göre değiştir
+    document.querySelectorAll('[data-lang]').forEach(element => {
+        const key = element.getAttribute('data-lang');
+        if (translations[lang][key]) {
+            element.textContent = translations[lang][key];
+        }
+    });
+}
+
 function updateUI() {
     usdBalanceEl.textContent = gameState.usdBalance.toFixed(4);
     tokenCountEl.textContent = gameState.tokenCount.toFixed(4);
@@ -26,99 +73,68 @@ function updateUI() {
     refCountStatusEl.textContent = `${gameState.referralCount}/${gameState.referralTarget}`;
 }
 
-// ==========================================
-// 2. CANLI GERİ SAYIM VE PASİF KAZANÇ MOTORU
-// ==========================================
+// DİL MENÜSÜ ETKİLEŞİMİ
+const langSelector = document.getElementById('lang-selector');
+const langDropdown = document.getElementById('lang-dropdown');
+
+langSelector.addEventListener('click', (e) => {
+    e.stopPropagation();
+    langDropdown.classList.toggle('show');
+});
+
+document.querySelectorAll('.lang-option').forEach(option => {
+    option.addEventListener('click', (e) => {
+        const selectedLang = option.getAttribute('data-lang-opt');
+        changeLanguage(selectedLang);
+        langDropdown.classList.remove('show');
+    });
+});
+
+// Menü dışına tıklanınca dil panelini kapat
+document.addEventListener('click', () => {
+    langDropdown.classList.remove('show');
+});
+
 function startMiningTimer() {
-    const timerInterval = setInterval(() => {
+    setInterval(() => {
         if (gameState.miningSecondsLeft <= 0) {
-            // Süre bittiğinde sayacı sıfırla ve yeniden başlat (Simülasyon)
             gameState.miningSecondsLeft = 25200; 
         } else {
             gameState.miningSecondsLeft--;
         }
-
-        // Saniyeyi Saat:Dakika:Saniye formatına çevirme
         const hours = Math.floor(gameState.miningSecondsLeft / 3600);
         const minutes = Math.floor((gameState.miningSecondsLeft % 3600) / 60);
         const seconds = gameState.miningSecondsLeft % 60;
-
-        // Sayıları iki basamaklı gösterme (Örn: 06:05:09)
-        const formattedTime = [
+        timerDisplayEl.textContent = [
             hours.toString().padStart(2, '0'),
             minutes.toString().padStart(2, '0'),
             seconds.toString().padStart(2, '0')
         ].join(':');
 
-        timerDisplayEl.textContent = formattedTime;
-
-        // Pasif Kazanç: Her saniye çok küçük bir miktar USD ve Token ekle
         gameState.tokenCount += 0.0001;
         gameState.usdBalance += 0.00000002;
         updateUI();
-
     }, 1000);
 }
-// ==========================================
-// 3. BUTON AKSİYONLARI VE ETKİLEŞİMLER
-// ==========================================
+
+// DİĞER BUTON AKSİYONLARI
 document.getElementById('btn-sell-token').addEventListener('click', () => {
     if (gameState.tokenCount > 0) {
-        // Tokenları satıp USD bakiyesine ekleme simülasyonu
         const earnedUsd = gameState.tokenCount * 0.00002;
         gameState.usdBalance += earnedUsd;
-        alert(`${gameState.tokenCount.toFixed(4)} Token başarıyla satıldı! \nKazanılan: $${earnedUsd.toFixed(4)}`);
+        alert(translations[gameState.currentLanguage].alert_sell);
         gameState.tokenCount = 0;
         updateUI();
-    } else {
-        alert("Satılacak tokenınız bulunmuyor. Madenciliğin dolmasını bekleyin!");
     }
 });
 
 document.getElementById('btn-upgrade-agent').addEventListener('click', () => {
-    // Gücü ve Agent seviyesini artırma aksiyonu
     gameState.powerAmount += 150;
-    gameState.tokenCount += 5.0; // Yükseltme ödülü token
-    alert("Agent başarıyla yükseltildi! \n+150 Güç ve +5 Token kazanıldı.");
+    gameState.tokenCount += 5.0;
+    alert(translations[gameState.currentLanguage].alert_upgrade);
     updateUI();
 });
 
-// Arkadaş Davet Etme Alanına Tıklama
-document.querySelector('.referral-box').addEventListener('click', () => {
-    if (gameState.referralCount < gameState.referralTarget) {
-        gameState.referralCount++;
-        gameState.powerAmount += 200; // Ekrandaki +200 Güç ödülü
-        alert("Arkadaşınız davet edildi! +200 Güç hesabınıza tanımlandı.");
-        updateUI();
-    } else {
-        alert("Bu görevi zaten tamamladınız!");
-    }
-});
-
-// AI Sohbet Butonu Aksiyonu
-document.querySelector('.chat-sohbet-btn').addEventListener('click', () => {
-    alert("Astra AI Agent ile sohbet modülü yakında aktif olacak!");
-});
-
-// ==========================================
-// 4. ALT MENÜ NAVİGASYON YÖNETİMİ
-// ==========================================
-const navItems = document.querySelectorAll('.nav-item');
-
-navItems.forEach(item => {
-    item.addEventListener('click', () => {
-        // Aktif sınıfını diğer tüm menü elemanlarından kaldır
-        navItems.forEach(nav => nav.classList.remove('active'));
-        // Tıklanan menü elemanını aktif yap
-        item.classList.add('active');
-        
-        const targetSection = item.getAttribute('data-target');
-        console.log(`Şu an açılan sekme: ${targetSection}`);
-        // İleride buraya diğer sayfaların gizleme/gösterme kodları eklenebilir
-    });
-});
-
-// Uygulama İlk Açıldığında Çalışacak Tetikleyiciler
 window.addEventListener('DOMContentLoaded', () => {
     updateUI();
     startMiningTimer();
