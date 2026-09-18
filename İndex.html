@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Astra Mining Agent</title>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Status Bar -->
+        <header class="top-bar">
+            <div class="balance-container">
+                <span class="currency-symbol">$</span>
+                <span id="usd-balance" class="balance-text">0.0012</span>
+                <span class="currency-code">USD</span>
+            </div>
+            <div class="top-actions">
+                <div class="flag-icon">
+                    <img src="https://flagcdn.com" alt="TR">
+                </div>
+                <button class="settings-btn"><i class="fas fa-cog"></i></button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- AI Agent Robot Visual Section -->
+            <div class="agent-display">
+                <div class="robot-container">
+                    <!-- Standard placeholder AI icon, can be replaced with image later -->
+                    <i class="fas fa-robot robot-placeholder-icon"></i>
+                </div>
+                <button class="action-arrow-btn"><i class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <!-- Countdown Timer -->
+            <div class="timer-display" id="mining-timer">06:51:25</div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span class="stat-label">Token</span>
+                    <span id="token-count" class="stat-value">49.5766</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Güç</span>
+                    <span id="power-amount" class="stat-value">2 110</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons Group -->
+            <div class="actions-group">
+                <button class="btn btn-blue" id="btn-sell-token">TOKEN SAT</button>
+                <button class="btn btn-purple" id="btn-upgrade-agent">AGENT'I YÜKSELT</button>
+            </div>
+
+            <!-- AI Agent Chat Quick Section -->
+            <div class="ai-chat-bar">
+                <div class="ai-chat-left">
+                    <i class="fas fa-brain ai-icon"></i>
+                    <span>AI Agent'ınız</span>
+                </div>
+                <button class="chat-sohbet-btn">Sohbet</button>
+            </div>
+
+            <!-- Referral System Link Box -->
+            <div class="referral-box">
+                <div class="ref-info">
+                    <i class="fas fa-users ref-icon"></i>
+                    <div class="ref-text">
+                        <span class="ref-title">1 arkadaşınızı davet edin</span>
+                        <span class="ref-reward">+200 Güç</span>
+                    </div>
+                </div>
+                <div class="ref-status" id="ref-count-status">0/1</div>
+            </div>
+        </main>
+
+        <!-- Bottom Navigation Fixed Menu Bar -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-target="upgrade">
+                <i class="fas fa-bolt"></i>
+                <span>Yükselt</span>
+            </button>
+            <button class="nav-item" data-target="earn">
+                <i class="fas fa-dollar-sign"></i>
+                <span>Kazan</span>
+            </button>
+            <button class="nav-item" data-target="ai">
+                <i class="fas fa-microchip"></i>
+                <span>AI</span>
+            </button>
+            <button class="nav-item" data-target="tasks">
+                <i class="fas fa-tasks"></i>
+                <span>Görevler</span>
+            </button>
+            <button class="nav-item" data-target="payment">
+                <i class="fas fa-wallet"></i>
+                <span>Ödeme</span>
+            </button>
+        </nav>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
