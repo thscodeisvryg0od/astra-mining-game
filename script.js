@@ -1,6 +1,9 @@
 /* ═══════════════════════════════════════
-   ASTRA MINING BOT — script.js
+   ASTRA MINING BOT — script.js (GÜNCEL SUNUCU ENTEGRELİ V2)
    ═══════════════════════════════════════ */
+
+// ── Sunucu Bağlantı Ayarları ────────────────
+const BACKEND_URL = "https://pythonanywhere.com";
 
 // ── Telegram WebApp SDK ──────────────────
 const tg = window.Telegram?.WebApp;
@@ -11,15 +14,15 @@ const tgUser = tg?.initDataUnsafe?.user;
 const urlParams = new URLSearchParams(window.location.search);
 const refFrom = urlParams.get('ref') || null;
 
-// ── LocalStorage yardımcıları ────────────
+// ── Yedek LocalStorage Yardımcıları ──────
 const LS_KEY = 'astra_v2';
-function loadState() {
+function loadLocalBackup() {
   try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch { return {}; }
 }
-function saveState() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+function saveLocalBackup() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
-// ── Varsayılan durum ─────────────────────
-const saved = loadState();
+// ── Varsayılan Durum Yapısı ──────────────
+const backupData = loadLocalBackup();
 const state = Object.assign({
   usd:          0.0000,
   token:        0.0000,
@@ -32,15 +35,62 @@ const state = Object.assign({
   streakCount:  0,
   lastCheckin:  null,       // ISO date string
   xpTotal:      0,
-  userId:       tgUser?.id || ('guest_' + Math.random().toString(36).slice(2, 8)),
+  userId:       tgUser?.id ? tgUser.id.toString() : ('guest_' + Math.random().toString(36).slice(2, 8)),
   username:     tgUser?.username || tgUser?.first_name || 'Gezgin',
   agentIndex:   0,
-}, saved);
+}, backupData);
 
 // Referanstan geldiyse kaydet
-if (refFrom && !state.refFrom) { state.refFrom = refFrom; saveState(); }
+if (refFrom && !state.refFrom) { state.refFrom = refFrom; saveLocalBackup(); }
 
-// ── Agent tipleri ────────────────────────
+// ── SUNUCUDAN VERİLERİ ÇEKME MOTORU (LOAD) ──
+async function loadFromServer() {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/get_user`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ telegram_id: state.userId })
+    });
+    const result = await response.json();
+    if (result.status === "success" && result.data) {
+      // Sunucu verilerini yerel duruma güvenle aktar
+      state.usd = result.data.usd_balance;
+      state.token = result.data.token_count;
+      state.power = result.data.power_amount;
+      state.refCount = result.data.referral_count;
+      state.lang = result.data.language || 'tr';
+      
+      // Senkronizasyon sonrası arayüzü yenile
+      updateUI();
+    }
+  } catch (error) {
+    console.error("Sunucudan veri yüklenirken hata, LocalStorage devrede:", error);
+  }
+}
+
+// ── SUNUCUYA VERİLERİ KAYDETME MOTORU (SAVE) ──
+async function saveToServer() {
+  // Hem yerel yedeği al hem de sunucuya asenkron gönder
+  saveLocalBackup();
+  try {
+    await fetch(`${BACKEND_URL}/api/save_user`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        telegram_id: state.userId,
+        usd_balance: state.usd,
+        token_count: state.token,
+        power_amount: state.power,
+        referral_count: state.refCount,
+        language: state.lang
+      })
+    });
+  } catch (error) {
+    console.error("Sunucuya veri kaydedilirken hata oluştu:", error);
+  }
+}
+
+// ── Agent Tipleri ────────────────────────
 const AGENTS = [
   { glyph: '✦', label: 'NOVA',    color: '#4f8fff' },
   { glyph: '◈', label: 'PULSAR', color: '#7b5fff' },
@@ -48,7 +98,7 @@ const AGENTS = [
   { glyph: '⬡', label: 'NEBULA', color: '#ffb340' },
 ];
 
-// ── Rank sistemi ─────────────────────────
+// ── Rank Sistemi ─────────────────────────
 const RANKS = [
   { name: 'Gezegen',   minPower: 0 },
   { name: 'Asteroid',  minPower: 5000 },
@@ -62,8 +112,7 @@ function getRank(power) {
   for (const rank of RANKS) { if (power >= rank.minPower) r = rank; }
   return r;
 }
-
-// ── Çeviri ───────────────────────────────
+// ── Çeviri Sözlükleri ─────────────────────
 const TR = {
   token:'Token', power:'Güç', sell:'Token Sat', upgrade:'Yükselt',
   ai_agent:'Astra Agent\'ınız', chat:'Sohbet', ref_quick:'1 arkadaş davet et',
@@ -84,7 +133,7 @@ const TR = {
   buy_power:'Güç Satın Al',
   unlock_head:'Yeni agent kilidini açmak için güç artır',
   need_power:'Gerekli güç:', unlock_btn:'Kilidi Aç',
-  unlock_note:'Agent\'lar görsel yükseltmedir, kazanç hızını etkilemez.',
+  unlock_note:'Agent\'lar görsel yükseltmedir, kazanç hızı etkilenmez.',
   tasks_title:'Görevler', tab_ref:'Referans', tab_follow:'Takip Et', tab_other:'Diğer',
   follow_channel:'Telegram kanalını takip et', follow_x:'X / Twitter\'da takip et',
   daily_checkin:'Günlük giriş yap',
@@ -147,49 +196,42 @@ const EN = {
 const T = () => state.lang === 'tr' ? TR : EN;
 const t = (key) => T()[key] || key;
 
-// ── DOM kısayolları ──────────────────────
 const $ = (id) => document.getElementById(id);
 const $q = (sel, ctx = document) => ctx.querySelector(sel);
 const $qa = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 
-// ── Referans linki ────────────────────────
 function getRefLink() {
   const base = window.location.origin + window.location.pathname;
   return `${base}?ref=${state.userId}`;
 }
 
-// ── UI güncelleme ────────────────────────
 function updateUI() {
-  // Üst bakiye
-  $('usd-val').textContent = state.usd.toFixed(4);
-  // Token / Güç
-  $('token-val').textContent = state.token.toFixed(4);
-  $('power-val').textContent = formatNum(state.power);
-  // Referans quick badge
-  $('ref-quick-badge').textContent = `${state.refCount}/1`;
-  // Rank + streak
-  $('streak-count').textContent = state.streakCount;
+  if($('usd-val')) $('usd-val').textContent = state.usd.toFixed(4);
+  if($('token-val')) $('token-val').textContent = state.token.toFixed(4);
+  if($('power-val')) $('power-val').textContent = formatNum(state.power);
+  if($('ref-quick-badge')) $('ref-quick-badge').textContent = `${state.refCount}/1`;
+  if($('streak-count')) $('streak-count').textContent = state.streakCount;
+  
   const rank = getRank(state.power);
-  $('rank-name').textContent = rank.name;
-  // Referans linki
+  if($('rank-name')) $('rank-name').textContent = rank.name;
+  
   const lnk = getRefLink();
   const lnkEl = $('ref-link-text');
   if (lnkEl) lnkEl.textContent = lnk.replace('https://', '');
-  // Agent görünümü
+  
   const ag = AGENTS[state.agentIndex % AGENTS.length];
-  $('agent-core').querySelector('.agent-glyph').textContent = ag.glyph;
-  $('agent-core').querySelector('.agent-rank').textContent = ag.label;
-  $('agent-core').style.borderColor = ag.color + '60';
-  // Görev rozetleri
+  const core = $('agent-core');
+  if(core) {
+    if(core.querySelector('.agent-glyph')) core.querySelector('.agent-glyph').textContent = ag.glyph;
+    if(core.querySelector('.agent-rank')) core.querySelector('.agent-rank').textContent = ag.label;
+    core.style.borderColor = ag.color + '60';
+  }
+  
   updateTaskBadges();
-  // Upgrade önizleme
   updateUpgradePreview();
-  // Dil flag
-  $('lang-flag').textContent = state.lang === 'tr' ? '🇹🇷' : '🇺🇸';
-  // Çeviriler
+  if($('lang-flag')) $('lang-flag').textContent = state.lang === 'tr' ? '🇹🇷' : '🇺🇸';
   applyTranslations();
-  // Dil flag için agent rank label
-  $('agent-rank-label') && ($('agent-rank-label').textContent = ag.label);
+  if($('agent-rank-label')) $('agent-rank-label').textContent = ag.label;
 }
 
 function formatNum(n) {
@@ -201,55 +243,52 @@ function formatNum(n) {
 function applyTranslations() {
   $qa('[data-t]').forEach(el => {
     const key = el.getAttribute('data-t');
-    const val = t(key);
-    if (val) el.textContent = val;
+    el.textContent = t(key);
   });
 }
 
-// ── Mining sayacı ────────────────────────
+// ── Mining Sayacı ve Kazanç Algoritması ─────
 let timerInterval = null;
 function startTimer() {
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
     if (state.miningLeft <= 0) { state.miningLeft = 24 * 3600; }
     state.miningLeft--;
-    // Token kazanımı: güç başına 0.00005 / sn
+    
+    // Kazanç: güç başına 0.00005 / sn
     const earn = (state.power / 10000) * 0.00005;
     state.token += earn;
     state.usd   += earn * 0.00002;
-    // Sayacı göster
+    
     const h = Math.floor(state.miningLeft / 3600);
     const m = Math.floor((state.miningLeft % 3600) / 60);
     const s = state.miningLeft % 60;
-    $('timer-val').textContent = [h, m, s].map(v => String(v).padStart(2, '0')).join(':');
-    // Her 30 sn bir kaydet
+    if($('timer-val')) {
+        $('timer-val').textContent = [h, m, s].map(v => String(v).padStart(2, '0')).join(':');
+    }
+    
+    // Her 30 saniyede bir verileri sunucuya güvenle post et
     if (state.miningLeft % 30 === 0) {
-      saveState();
+      saveToServer();
       updateUI();
     }
   }, 1000);
 }
 
-// ── Upgrade önizleme ──────────────────────
 let upgradeAmt = 3;
 function updateUpgradePreview() {
   const power = upgradeAmt * 10000;
   const bonus = Math.round(power * 0.2);
   const tokDay = Math.round(power * 0.01714);
-  const el1 = $('up-power');
-  const el2 = $('up-bonus');
-  const el3 = $('up-tok');
-  const amtEl = $('amt-val');
-  if (el1) el1.textContent = formatNum(power);
-  if (el2) el2.textContent = '+' + formatNum(bonus);
-  if (el3) el3.textContent = tokDay + ' / ' + (state.lang === 'tr' ? 'gün' : 'day');
-  if (amtEl) amtEl.textContent = upgradeAmt;
+  if ($('up-power')) $('up-power').textContent = formatNum(power);
+  if ($('up-bonus')) $('up-bonus').textContent = '+' + formatNum(bonus);
+  if ($('up-tok')) $('up-tok').textContent = tokDay + ' / ' + (state.lang === 'tr' ? 'gün' : 'day');
+  if ($('amt-val')) $('amt-val').textContent = upgradeAmt;
 }
 
-// ── Görev rozetleri ───────────────────────
 function updateTaskBadges() {
   const rc = state.refCount;
-  const goals = [1, 3, 7, 15, 30, 50];
+  const goals =;
   goals.forEach(g => {
     const el = $(`task-ref${g}`);
     if (!el) return;
@@ -257,7 +296,7 @@ function updateTaskBadges() {
     if (rc >= g) { el.classList.add('done-badge'); el.textContent = '✓'; }
     else { el.classList.remove('done-badge'); }
   });
-  // Tamamlanan follow görevleri
+  
   state.completedTasks.forEach(tid => {
     const item = $q(`[data-task="${tid}"]`);
     if (!item) return;
@@ -265,7 +304,7 @@ function updateTaskBadges() {
     const btn = item.querySelector('.task-go-btn');
     if (btn) { btn.textContent = '✓'; btn.classList.add('done-go'); }
   });
-  // Günlük giriş
+  
   const dailyBtn = $('daily-btn');
   if (dailyBtn) {
     const today = new Date().toDateString();
@@ -278,16 +317,15 @@ function updateTaskBadges() {
   }
 }
 
-// ── Toast ─────────────────────────────────
 let toastTimer = null;
 function showToast(msg) {
   const el = $('toast');
+  if(!el) return;
   el.textContent = msg; el.classList.remove('hidden');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.classList.add('hidden'), 2200);
 }
 
-// ── Ekran geçişi ──────────────────────────
 function goScreen(name) {
   $qa('.screen').forEach(s => s.classList.remove('active'));
   $qa('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -297,23 +335,7 @@ function goScreen(name) {
   if (btn) btn.classList.add('active');
 }
 
-// ── Tab geçişi ────────────────────────────
-function setupTabs(containerSel, panePrefix) {
-  $qa('.tab', $q(containerSel)).forEach(tab => {
-    tab.addEventListener('click', () => {
-      $qa('.tab', $q(containerSel)).forEach(t2 => t2.classList.remove('active'));
-      tab.classList.add('active');
-      const target = tab.getAttribute('data-tab');
-      $qa('.tab-pane', $q(containerSel).parentElement).forEach(p => {
-        p.id === `tab-${target}` ? p.classList.remove('hidden') : p.classList.add('hidden');
-      });
-    });
-  });
-}
-
-// ─────────────────────────────────────────
-// ── MINI OYUN ────────────────────────────
-// ─────────────────────────────────────────
+// ── MİNİ OYUN MOTORU ──────────────────────
 let gameRunning = false;
 let gameOrbScore = 0;
 let gameTimerEl = null;
@@ -329,292 +351,30 @@ function startMiniGame() {
   startBtn.disabled = true;
   area.innerHTML = '';
 
-  // Sayaç label
   gameTimerEl = document.createElement('span');
   gameTimerEl.className = 'game-timer-label';
   gameTimerEl.textContent = '10';
   area.appendChild(gameTimerEl);
 
-  // Topları doğru zamanlı spawnla
-  let elapsed = 0;
-  const spawnInterval = setInterval(() => {
-    spawnOrb(area);
-  }, 800);
+  const spawnInterval = setInterval(() => { spawnOrb(area); }, 800);
 
   let countdown = 10;
-  const countInterval = setInterval(() => {
-    countdown--;
-    if (gameTimerEl) gameTimerEl.textContent = String(countdown);
-    if (countdown <= 0) {
-      clearInterval(countInterval);
-      clearInterval(spawnInterval);
-      endGame(area, result, startBtn);
-    }
-  }, 1000);
-}
-
-function spawnOrb(area) {
-  const orb = document.createElement('div');
-  orb.className = 'game-orb';
-  const maxX = area.clientWidth  - 16;
-  const maxY = area.clientHeight - 16;
-  const x = 16 + Math.random() * (maxX - 32);
-  const y = 16 + Math.random() * (maxY - 32);
-  orb.style.left = x + 'px';
-  orb.style.top  = y + 'px';
-  orb.addEventListener('pointerdown', (e) => {
-    e.preventDefault();
-    if (!gameRunning) return;
-    gameOrbScore++;
-    orb.remove();
-    // Tıklama efekti
-    const burst = document.createElement('div');
-    burst.style.cssText = `position:absolute;width:32px;height:32px;border-radius:50%;background:rgba(79,143,255,0.4);left:${x-16}px;top:${y-16}px;transform:scale(1);transition:transform 0.2s,opacity 0.2s;pointer-events:none;`;
-    area.appendChild(burst);
-    setTimeout(() => { burst.style.transform = 'scale(2.5)'; burst.style.opacity = '0'; }, 10);
-    setTimeout(() => burst.remove(), 250);
-  });
-  area.appendChild(orb);
-  // 1.5 sn sonra kendiliğinden yok ol
-  setTimeout(() => { if (orb.parentNode) orb.remove(); }, 1500);
-}
-
-function endGame(area, result, startBtn) {
-  gameRunning = false;
-  // Tüm topları temizle
-  $qa('.game-orb', area).forEach(o => o.remove());
-  // Ödül: her tıklamaya 0.05 token
-  const earned = +(gameOrbScore * 0.05).toFixed(4);
-  state.token += earned;
-  state.usd   += earned * 0.00002;
-  saveState(); updateUI();
-  result.classList.remove('hidden');
-  result.textContent = t('game_end') + earned + ' token';
-  startBtn.disabled = false;
-}
-
-// ─────────────────────────────────────────
-// ── OLAY DİNLEYİCİLERİ ──────────────────
-// ─────────────────────────────────────────
-function setupEvents() {
-
-  // Alt menü
-  $qa('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => goScreen(btn.dataset.screen));
-  });
-
-  // Dil butonu
-  $('lang-btn').addEventListener('click', (e) => {
-    e.stopPropagation();
-    $('lang-panel').classList.toggle('hidden');
-  });
-  $qa('.lang-opt').forEach(opt => {
-    opt.addEventListener('click', () => {
-      state.lang = opt.dataset.lang;
-      $('lang-panel').classList.add('hidden');
-      saveState(); updateUI();
-    });
-  });
-  document.addEventListener('click', () => $('lang-panel').classList.add('hidden'));
-
-  // Ayarlar
-  $('settings-btn').addEventListener('click', () => $('settings-overlay').classList.remove('hidden'));
-  $('settings-close').addEventListener('click', () => $('settings-overlay').classList.add('hidden'));
-  $('settings-overlay').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) $('settings-overlay').classList.add('hidden');
-  });
-  // Ayarlar menü öğeleri
-  $('menu-ref2').addEventListener('click', () => { $('settings-overlay').classList.add('hidden'); goScreen('earn'); });
-
-  // Token sat
-  $('btn-sell').addEventListener('click', () => {
-    if (state.token < 0.001) { showToast(t('not_enough')); return; }
-    const earned = state.token * 0.00002;
-    state.usd += earned; state.token = 0;
-    saveState(); updateUI(); showToast(t('sold'));
-  });
-
-  // Agent yükselt
-  $('btn-upgrade').addEventListener('click', () => {
-    goScreen('upgrade');
-    $q('[data-screen="upgrade"]').classList.add('active');
-    $qa('.nav-btn').forEach(b => b.classList.remove('active'));
-    $q('[data-screen="upgrade"]').classList.add('active');
-  });
-
-  // Agent next
-  $('agent-next-btn').addEventListener('click', () => {
-    const next = AGENTS[(state.agentIndex + 1) % AGENTS.length];
-    const requiredPower = (state.agentIndex + 1) * 250000;
-    if (state.power < requiredPower) {
-      showToast(`${t('need_power')} ${formatNum(requiredPower)}`);
-      return;
-    }
-    state.agentIndex = (state.agentIndex + 1) % AGENTS.length;
-    saveState(); updateUI();
-  });
-
-  // AI sohbet
-  $('chat-btn').addEventListener('click', () => {
-    if (tg) { tg.openTelegramLink('https://t.me/AstraMinerBot'); }
-    else { window.open('https://t.me/AstraMinerBot', '_blank'); }
-  });
-
-  // Ref kopyala
-  $('copy-ref-btn').addEventListener('click', () => {
-    const lnk = getRefLink();
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(lnk).then(() => showToast(t('copied')));
-    } else {
-      const ta = document.createElement('textarea');
-      ta.value = lnk; document.body.appendChild(ta); ta.select();
-      document.execCommand('copy'); document.body.removeChild(ta);
-      showToast(t('copied'));
-    }
-  });
-
-  // Ref paylaş
-  $('share-ref-btn').addEventListener('click', () => {
-    const lnk = getRefLink();
-    const msg = `Astra Mining'e katıl! ${lnk}`;
-    if (tg) { tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(lnk)}&text=${encodeURIComponent(msg)}`); }
-    else { window.open(`https://t.me/share/url?url=${encodeURIComponent(lnk)}`, '_blank'); }
-  });
-
-  // Güç miktarı
-  $qa('.amt-step').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const delta = parseInt(btn.dataset.delta);
-      upgradeAmt = Math.max(1, Math.min(999, upgradeAmt + delta));
-      updateUpgradePreview();
-    });
-  });
-
-  // Güç satın al
-  $('buy-power-btn').addEventListener('click', () => {
-    // Gerçek projede burada ödeme ekranına yönlendirilir.
-    // Demo: doğrudan güç ekle
-    const power = upgradeAmt * 10000;
-    const bonus = Math.round(power * 0.2);
-    state.power += power + bonus;
-    saveState(); updateUI();
-    showToast(t('power_bought'));
-    goScreen('ai');
-  });
-
-  // Agent kilit açma
-  $('unlock-agent-btn').addEventListener('click', () => {
-    const required = 250000;
-    if (state.power >= required) {
-      state.agentIndex = Math.min(state.agentIndex + 1, AGENTS.length - 1);
-      saveState(); updateUI(); showToast('Agent açıldı! ✦');
-    } else {
-      showToast(`${t('need_power')} ${formatNum(required)}`);
-    }
-  });
-
-  // Takip görevleri
-  $qa('.task-go-btn').forEach(btn => {
-    const item = btn.closest('.task-item');
-    if (!item) return;
-    const taskId = item.dataset.task;
-    const url    = btn.dataset.url;
-    const reward = parseInt(item.dataset.reward || '0');
-
-    btn.addEventListener('click', () => {
-      if (state.completedTasks.includes(taskId)) return;
-      if (url) {
-        if (tg) { tg.openTelegramLink(url); }
-        else { window.open(url, '_blank'); }
-        // 2 sn sonra tamamlandı say
-        setTimeout(() => {
-          state.completedTasks.push(taskId);
-          state.power += reward;
-          saveState(); updateUI();
-          showToast(t('task_done') + ' +' + formatNum(reward) + ' Güç');
-        }, 2000);
-      }
-    });
-  });
-
-  // Günlük giriş
-  $('daily-btn')?.addEventListener('click', () => {
-    const today = new Date().toDateString();
-    if (state.lastCheckin === today) { showToast(t('already_checkin')); return; }
-    // Streak hesabı
-    const yesterday = new Date(Date.now() - 86400000).toDateString();
-    state.streakCount = (state.lastCheckin === yesterday) ? state.streakCount + 1 : 1;
-    state.lastCheckin = today;
-    state.power += 100;
-    state.xpTotal += 50;
-    saveState(); updateUI();
-    showToast(t('checkin_done'));
-  });
-
-  // Mini oyun başlat
-  $('start-game-btn')?.addEventListener('click', startMiniGame);
-
-  // Earn sekmeleri
-  $qa('#screen-earn .tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      $qa('#screen-earn .tab').forEach(t2 => t2.classList.remove('active'));
-      tab.classList.add('active');
-      const target = tab.dataset.tab;
-      $qa('#screen-earn .tab-pane').forEach(p => {
-        p.id === `tab-${target}` ? p.classList.remove('hidden') : p.classList.add('hidden');
-      });
-    });
-  });
-
-  // Tasks sekmeleri
-  $qa('#screen-tasks .tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      $qa('#screen-tasks .tab').forEach(t2 => t2.classList.remove('active'));
-      tab.classList.add('active');
-      const target = tab.dataset.tab;
-      $qa('#screen-tasks .tab-pane').forEach(p => {
-        p.id === `tab-${target}` ? p.classList.remove('hidden') : p.classList.add('hidden');
-      });
-    });
-  });
-
-  // Seviye tab (referans listesi)
-  $qa('.lvl-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      $qa('.lvl-tab').forEach(t2 => t2.classList.remove('active'));
-      tab.classList.add('active');
-      renderRefList(parseInt(tab.dataset.level));
-    });
-  });
-}
-
-// ── Referans listesini göster ─────────────
-function renderRefList(level) {
-  const el = $('ref-list');
-  if (!el) return;
-  const filtered = state.refList.filter(r => r.level === level);
-  if (filtered.length === 0) {
-    el.innerHTML = `<p class="empty-msg">${t('no_refs')}</p>`;
-    return;
-  }
-  el.innerHTML = filtered.map(r =>
-    `<div class="task-item"><div class="task-left"><span class="task-icon">◎</span><span>${r.name}</span></div><span class="chip-badge">0 USD</span></div>`
-  ).join('');
-}
-
-// ─────────────────────────────────────────
-// ── BAŞLATMA ─────────────────────────────
-// ─────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  setupEvents();
-  updateUI();
-  startTimer();
-  renderRefList(1);
-  // Ref'ten geldiyse sahte referans sayısı dışarıdan yönetilir (backend olmadan simülasyon)
+showToast(t('checkin_done'));
 });
 
-// Sekme kapanırken kaydet
+$('start-game-btn')?.addEventListener('click', startMiniGame);
+}
+
+// ── BAŞLATMA MOTORU ───────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+setupEvents();
+updateUI();
+// Önce sunucudan güncel veritabanı kayıtlarını çek
+await loadFromServer();
+startTimer();
+});
+
 window.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'hidden') saveState();
+if (document.visibilityState === 'hidden') saveToServer();
 });
-window.addEventListener('pagehide', saveState);
+
