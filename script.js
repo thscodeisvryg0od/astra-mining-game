@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════
-   ASTRA MINING BOT — script.js (GÜNCEL SUNUCU ENTEGRELİ V2)
+   ASTRA MINING BOT — script.js
    ═══════════════════════════════════════ */
 
-// ── Sunucu Bağlantı Ayarları ────────────────
-const BACKEND_URL = "https://pythonanywhere.com";
+// ── Sunucu Bağlantı Ayarları (Kendi PythonAnywhere kullanıcı adınızla değiştirin) ──
+const BACKEND_URL = "https://firaty33.pythonanywhere.com";
 
 // ── Telegram WebApp SDK ──────────────────
 const tg = window.Telegram?.WebApp;
@@ -30,20 +30,19 @@ const state = Object.assign({
   lang:         'tr',
   miningLeft:   24 * 3600,
   refCount:     0,
-  refList:      [],         // [{ id, name, joined }]
-  completedTasks: [],       // task id listesi
+  refList:      [],
+  completedTasks: [],
   streakCount:  0,
-  lastCheckin:  null,       // ISO date string
+  lastCheckin:  null,
   xpTotal:      0,
   userId:       tgUser?.id ? tgUser.id.toString() : ('guest_' + Math.random().toString(36).slice(2, 8)),
   username:     tgUser?.username || tgUser?.first_name || 'Gezgin',
   agentIndex:   0,
 }, backupData);
 
-// Referanstan geldiyse kaydet
 if (refFrom && !state.refFrom) { state.refFrom = refFrom; saveLocalBackup(); }
 
-// ── SUNUCUDAN VERİLERİ ÇEKME MOTORU (LOAD) ──
+// ── SUNUCUDAN VERİLERİ ÇEKME ──
 async function loadFromServer() {
   try {
     const response = await fetch(`${BACKEND_URL}/api/get_user`, {
@@ -53,24 +52,20 @@ async function loadFromServer() {
     });
     const result = await response.json();
     if (result.status === "success" && result.data) {
-      // Sunucu verilerini yerel duruma güvenle aktar
       state.usd = result.data.usd_balance;
       state.token = result.data.token_count;
       state.power = result.data.power_amount;
       state.refCount = result.data.referral_count;
       state.lang = result.data.language || 'tr';
-      
-      // Senkronizasyon sonrası arayüzü yenile
       updateUI();
     }
   } catch (error) {
-    console.error("Sunucudan veri yüklenirken hata, LocalStorage devrede:", error);
+    console.error("Sunucu yükleme hatası:", error);
   }
 }
 
-// ── SUNUCUYA VERİLERİ KAYDETME MOTORU (SAVE) ──
+// ── SUNUCUYA VERİ KAYDETME ──
 async function saveToServer() {
-  // Hem yerel yedeği al hem de sunucuya asenkron gönder
   saveLocalBackup();
   try {
     await fetch(`${BACKEND_URL}/api/save_user`, {
@@ -86,11 +81,11 @@ async function saveToServer() {
       })
     });
   } catch (error) {
-    console.error("Sunucuya veri kaydedilirken hata oluştu:", error);
+    console.error("Sunucu kaydetme hatası:", error);
   }
 }
 
-// ── Agent Tipleri ────────────────────────
+// ── AGENT & RANK TANIMLARI ────────────────────────
 const AGENTS = [
   { glyph: '✦', label: 'NOVA',    color: '#4f8fff' },
   { glyph: '◈', label: 'PULSAR', color: '#7b5fff' },
@@ -98,7 +93,6 @@ const AGENTS = [
   { glyph: '⬡', label: 'NEBULA', color: '#ffb340' },
 ];
 
-// ── Rank Sistemi ─────────────────────────
 const RANKS = [
   { name: 'Gezegen',   minPower: 0 },
   { name: 'Asteroid',  minPower: 5000 },
@@ -107,12 +101,14 @@ const RANKS = [
   { name: 'Galaksi',  minPower: 150000 },
   { name: 'Evren',    minPower: 500000 },
 ];
+
 function getRank(power) {
   let r = RANKS[0];
   for (const rank of RANKS) { if (power >= rank.minPower) r = rank; }
   return r;
 }
-// ── Çeviri Sözlükleri ─────────────────────
+
+// ── ÇEVİRİ SÖZLÜKLERİ ─────────────────────
 const TR = {
   token:'Token', power:'Güç', sell:'Token Sat', upgrade:'Yükselt',
   ai_agent:'Astra Agent\'ınız', chat:'Sohbet', ref_quick:'1 arkadaş davet et',
@@ -153,6 +149,7 @@ const TR = {
   already_checkin:'Bugün zaten giriş yaptınız.',
   game_end:'Oyun bitti! +',
 };
+
 const EN = {
   token:'Token', power:'Power', sell:'Sell Token', upgrade:'Upgrade',
   ai_agent:'Your Astra Agent', chat:'Chat', ref_quick:'Invite 1 friend',
@@ -193,6 +190,7 @@ const EN = {
   already_checkin:'Already checked in today.',
   game_end:'Game over! +',
 };
+
 const T = () => state.lang === 'tr' ? TR : EN;
 const t = (key) => T()[key] || key;
 
@@ -206,14 +204,14 @@ function getRefLink() {
 }
 
 function updateUI() {
-  if($('usd-val')) $('usd-val').textContent = state.usd.toFixed(4);
-  if($('token-val')) $('token-val').textContent = state.token.toFixed(4);
-  if($('power-val')) $('power-val').textContent = formatNum(state.power);
-  if($('ref-quick-badge')) $('ref-quick-badge').textContent = `${state.refCount}/1`;
-  if($('streak-count')) $('streak-count').textContent = state.streakCount;
+  if($('usd-val'))$('usd-val').textContent = state.usd.toFixed(4);
+  if($('token-val'))$('token-val').textContent = state.token.toFixed(4);
+  if($('power-val'))$('power-val').textContent = formatNum(state.power);
+  if($('ref-quick-badge'))$('ref-quick-badge').textContent = `${state.refCount}/1`;
+  if($('streak-count'))$('streak-count').textContent = state.streakCount;
   
   const rank = getRank(state.power);
-  if($('rank-name')) $('rank-name').textContent = rank.name;
+  if($('rank-name'))$('rank-name').textContent = rank.name;
   
   const lnk = getRefLink();
   const lnkEl = $('ref-link-text');
@@ -229,9 +227,9 @@ function updateUI() {
   
   updateTaskBadges();
   updateUpgradePreview();
-  if($('lang-flag')) $('lang-flag').textContent = state.lang === 'tr' ? '🇹🇷' : '🇺🇸';
+  if($('lang-flag'))$('lang-flag').textContent = state.lang === 'tr' ? '🇹🇷' : '🇺🇸';
   applyTranslations();
-  if($('agent-rank-label')) $('agent-rank-label').textContent = ag.label;
+  if($('agent-rank-label'))$('agent-rank-label').textContent = ag.label;
 }
 
 function formatNum(n) {
@@ -247,7 +245,7 @@ function applyTranslations() {
   });
 }
 
-// ── Mining Sayacı ve Kazanç Algoritması ─────
+// ── MINING ZAMANLAYICISI ─────
 let timerInterval = null;
 function startTimer() {
   clearInterval(timerInterval);
@@ -255,7 +253,6 @@ function startTimer() {
     if (state.miningLeft <= 0) { state.miningLeft = 24 * 3600; }
     state.miningLeft--;
     
-    // Kazanç: güç başına 0.00005 / sn
     const earn = (state.power / 10000) * 0.00005;
     state.token += earn;
     state.usd   += earn * 0.00002;
@@ -263,11 +260,9 @@ function startTimer() {
     const h = Math.floor(state.miningLeft / 3600);
     const m = Math.floor((state.miningLeft % 3600) / 60);
     const s = state.miningLeft % 60;
-    if($('timer-val')) {
-        $('timer-val').textContent = [h, m, s].map(v => String(v).padStart(2, '0')).join(':');
+    if($('timer-val')) {$('timer-val').textContent = [h, m, s].map(v => String(v).padStart(2, '0')).join(':');
     }
     
-    // Her 30 saniyede bir verileri sunucuya güvenle post et
     if (state.miningLeft % 30 === 0) {
       saveToServer();
       updateUI();
@@ -280,15 +275,15 @@ function updateUpgradePreview() {
   const power = upgradeAmt * 10000;
   const bonus = Math.round(power * 0.2);
   const tokDay = Math.round(power * 0.01714);
-  if ($('up-power')) $('up-power').textContent = formatNum(power);
-  if ($('up-bonus')) $('up-bonus').textContent = '+' + formatNum(bonus);
-  if ($('up-tok')) $('up-tok').textContent = tokDay + ' / ' + (state.lang === 'tr' ? 'gün' : 'day');
-  if ($('amt-val')) $('amt-val').textContent = upgradeAmt;
+  if ($('up-power'))$('up-power').textContent = formatNum(power);
+  if ($('up-bonus'))$('up-bonus').textContent = '+' + formatNum(bonus);
+  if ($('up-tok'))$('up-tok').textContent = tokDay + ' / ' + (state.lang === 'tr' ? 'gün' : 'day');
+  if ($('amt-val'))$('amt-val').textContent = upgradeAmt;
 }
 
 function updateTaskBadges() {
   const rc = state.refCount;
-  const goals =;
+  const goals = [1, 3, 7, 15, 30, 50]; // Hata giderildi
   goals.forEach(g => {
     const el = $(`task-ref${g}`);
     if (!el) return;
@@ -311,7 +306,7 @@ function updateTaskBadges() {
     if (state.lastCheckin === today) {
       dailyBtn.textContent = '✓'; dailyBtn.classList.add('done-go');
     } else {
-      dailyBtn.textContent = t('daily_checkin') === 'Daily check-in' ? 'Claim' : 'Al';
+      dailyBtn.textContent = state.lang === 'tr' ? 'Al' : 'Claim';
       dailyBtn.classList.remove('done-go');
     }
   }
@@ -327,54 +322,121 @@ function showToast(msg) {
 }
 
 function goScreen(name) {
-  $qa('.screen').forEach(s => s.classList.remove('active'));
-  $qa('.nav-btn').forEach(b => b.classList.remove('active'));
+  $qa('.screen').forEach(s => s.classList.remove('active'));$qa('.nav-btn').forEach(b => b.classList.remove('active'));
   const sc = $(`screen-${name}`);
   const btn = $q(`[data-screen="${name}"]`);
   if (sc) sc.classList.add('active');
   if (btn) btn.classList.add('active');
 }
 
-// ── MİNİ OYUN MOTORU ──────────────────────
+// ── MİNİ OYUN MOTORU ──
 let gameRunning = false;
 let gameOrbScore = 0;
-let gameTimerEl = null;
+
+function spawnOrb(area) {
+  if (!gameRunning) return;
+  const orb = document.createElement('div');
+  orb.className = 'game-orb';
+  const x = Math.random() * 80 + 10;
+  const y = Math.random() * 70 + 15;
+  orb.style.left = `${x}%`;
+  orb.style.top = `${y}%`;
+
+  orb.addEventListener('click', () => {
+    gameOrbScore += 10;
+    orb.remove();
+  });
+
+  area.appendChild(orb);
+  setTimeout(() => { if (orb.parentNode) orb.remove(); }, 1200);
+}
 
 function startMiniGame() {
   if (gameRunning) return;
-  gameRunning = true; gameOrbScore = 0;
+  gameRunning = true; 
+  gameOrbScore = 0;
   const area = $('game-area');
   const result = $('game-result');
   const startBtn = $('start-game-btn');
+  
   area.classList.remove('hidden');
   result.classList.add('hidden');
   startBtn.disabled = true;
   area.innerHTML = '';
 
-  gameTimerEl = document.createElement('span');
-  gameTimerEl.className = 'game-timer-label';
-  gameTimerEl.textContent = '10';
-  area.appendChild(gameTimerEl);
+  const timerEl = document.createElement('span');
+  timerEl.className = 'game-timer-label';
+  timerEl.textContent = '10';
+  area.appendChild(timerEl);
 
   const spawnInterval = setInterval(() => { spawnOrb(area); }, 800);
 
   let countdown = 10;
-showToast(t('checkin_done'));
-});
+  const cdInterval = setInterval(() => {
+    countdown--;
+    timerEl.textContent = countdown;
+    if (countdown <= 0) {
+      clearInterval(cdInterval);
+      clearInterval(spawnInterval);
+      gameRunning = false;
+      area.classList.add('hidden');
+      result.classList.remove('hidden');
+      startBtn.disabled = false;
+      
+      const reward = (gameOrbScore * 0.1);
+      state.token += reward;
+      result.textContent = `${t('game_end')} ${reward.toFixed(2)} Token!`;
+      saveToServer();
+      updateUI();
+    }
+  }, 1000);
+}
 
-$('start-game-btn')?.addEventListener('click', startMiniGame);
+// ── ETKİNLİK DİNLENİCİLERİ ───────────────────────
+function setupEvents() {
+  $qa('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => goScreen(btn.getAttribute('data-screen')));
+  });
+
+  $('lang-btn')?.addEventListener('click', () => $('lang-panel')?.classList.toggle('hidden'));$qa('.lang-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      state.lang = opt.getAttribute('data-lang');
+      $('lang-panel')?.classList.add('hidden');
+      saveToServer();
+      updateUI();
+    });
+  });
+
+  $('agent-next-btn')?.addEventListener('click', () => {
+    state.agentIndex = (state.agentIndex + 1) % AGENTS.length;
+    updateUI();
+  });
+
+  $('daily-btn')?.addEventListener('click', () => {
+    const today = new Date().toDateString();
+    if (state.lastCheckin === today) {
+      showToast(t('already_checkin'));
+      return;
+    }
+    state.lastCheckin = today;
+    state.power += 100;
+    state.streakCount += 1;
+    saveToServer();
+    updateUI();
+    showToast(t('checkin_done'));
+  });
+
+  $('start-game-btn')?.addEventListener('click', startMiniGame);
 }
 
 // ── BAŞLATMA MOTORU ───────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
-setupEvents();
-updateUI();
-// Önce sunucudan güncel veritabanı kayıtlarını çek
-await loadFromServer();
-startTimer();
+  setupEvents();
+  updateUI();
+  await loadFromServer();
+  startTimer();
 });
 
 window.addEventListener('visibilitychange', () => {
-if (document.visibilityState === 'hidden') saveToServer();
+  if (document.visibilityState === 'hidden') saveToServer();
 });
-
