@@ -591,7 +591,7 @@ function buildDefaultState() {
 
     username: "Gezgin",
 
-    lang: "tr",
+    lang: "en",
 
     usd: 10,
 
