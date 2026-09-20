@@ -3,334 +3,1617 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <meta name="theme-color" content="#050811">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Astra Mining — simulated cosmic mining dashboard">
+
   <title>Astra Mining</title>
+
+  <!-- Optional Telegram WebApp compatibility.
+       The application does NOT depend on Telegram being available. -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet"
+  >
+
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
+  <!-- COSMIC BACKGROUND -->
   <div id="stars-bg" aria-hidden="true"></div>
+  <div class="nebula nebula-a" aria-hidden="true"></div>
+  <div class="nebula nebula-b" aria-hidden="true"></div>
+  <div class="space-grid" aria-hidden="true"></div>
 
   <div class="app">
 
     <!-- TOP BAR -->
     <header class="topbar">
+
       <div class="topbar-left">
-        <div class="balance-pill">
-          <span class="balance-icon">◈</span>
-          <span id="usd-val">0.0000</span>
-          <span class="balance-unit">USD</span>
+        <div class="brand-mini">
+          <div class="brand-orb">✦</div>
+
+          <div class="brand-copy">
+            <strong>ASTRA</strong>
+            <span>MINING CORE</span>
+          </div>
+        </div>
+
+        <div class="simulation-badge">
+          <span class="sim-dot"></span>
+          <span data-t="simulation">SIM</span>
         </div>
       </div>
+
       <div class="topbar-right">
-        <button class="lang-btn" id="lang-btn" aria-label="Dil değiştir">
+
+        <div class="balance-pill">
+          <span class="balance-icon">◈</span>
+
+          <span id="usd-val">10.0000</span>
+
+          <span class="balance-unit">USD</span>
+        </div>
+
+        <button
+          class="lang-btn"
+          id="lang-btn"
+          aria-label="Dil değiştir"
+          type="button"
+        >
           <span id="lang-flag">🇹🇷</span>
         </button>
-        <button class="icon-btn" id="settings-btn" aria-label="Ayarlar">⚙</button>
+
+        <button
+          class="icon-btn"
+          id="settings-btn"
+          aria-label="Ayarlar"
+          type="button"
+        >
+          ⚙
+        </button>
+
       </div>
     </header>
 
-    <!-- LANG PANEL -->
-    <div class="lang-panel hidden" id="lang-panel" role="dialog" aria-label="Dil seçimi">
-      <div class="lang-grid">
-        <button class="lang-opt" data-lang="tr">🇹🇷 TR</button>
-        <button class="lang-opt" data-lang="en">🇺🇸 EN</button>
-      </div>
+    <!-- LANGUAGE -->
+    <div
+      class="lang-panel hidden"
+      id="lang-panel"
+      role="dialog"
+      aria-label="Dil seçimi"
+    >
+      <button class="lang-opt" data-lang="tr" type="button">
+        🇹🇷 Türkçe
+      </button>
+
+      <button class="lang-opt" data-lang="en" type="button">
+        🇺🇸 English
+      </button>
     </div>
 
-    <!-- SCREENS -->
+    <!-- MAIN APP -->
     <main class="screens">
 
-      <!-- AI (ANASAYFA) -->
+      <!-- ======================================================
+           AI / HOME
+      ======================================================= -->
       <section class="screen active" id="screen-ai">
+
+        <div class="screen-topline">
+          <div>
+            <span class="eyebrow" data-t="command_center">COMMAND CENTER</span>
+            <h1 class="hero-title">Astra Mining</h1>
+          </div>
+
+          <div class="online-indicator">
+            <span></span>
+            <strong data-t="online">ONLINE</strong>
+          </div>
+        </div>
+
+        <!-- AGENT -->
         <div class="agent-zone">
-          <div class="orbit-ring" aria-hidden="true">
+
+          <div class="agent-hud hud-one">
+            <span class="hud-label">CORE</span>
+            <strong id="hud-core-value">NOVA</strong>
+          </div>
+
+          <div class="agent-hud hud-two">
+            <span class="hud-label" data-t="efficiency">EFFICIENCY</span>
+            <strong id="hud-efficiency">1.71%</strong>
+          </div>
+
+          <div
+            class="orbit-ring orbit-ring-outer"
+            aria-hidden="true"
+          >
             <div class="orbit-dot"></div>
           </div>
-          <div class="agent-core" id="agent-core">
-            <div class="agent-glyph">✦</div>
-            <div class="agent-rank" id="agent-rank-label">NOVA</div>
+
+          <div
+            class="orbit-ring orbit-ring-inner"
+            aria-hidden="true"
+          ></div>
+
+          <div class="agent-core-wrap">
+
+            <div class="agent-core" id="agent-core">
+
+              <div class="agent-shine"></div>
+
+              <div
+                class="agent-glyph"
+                id="agent-glyph"
+              >
+                ✦
+              </div>
+
+              <div
+                class="agent-rank"
+                id="agent-rank-label"
+              >
+                NOVA
+              </div>
+
+              <div
+                class="agent-status"
+                id="agent-status"
+                data-t="active_core"
+              >
+                ACTIVE CORE
+              </div>
+
+            </div>
+
           </div>
-          <button class="agent-next-btn" id="agent-next-btn" aria-label="Sonraki agent">›</button>
+
+          <button
+            class="agent-next-btn"
+            id="agent-next-btn"
+            aria-label="Sonraki agent"
+            type="button"
+          >
+            ›
+          </button>
+
         </div>
 
-        <div class="timer-bar" id="timer-bar">
-          <span class="timer-label" id="timer-label">⧗</span>
-          <span class="timer-val" id="timer-val">--:--:--</span>
+        <!-- MINING TIMER -->
+        <div class="timer-card">
+
+          <div class="timer-head">
+
+            <div class="timer-title">
+              <span class="pulse-icon">⧗</span>
+
+              <div>
+                <span class="eyebrow" data-t="mining_cycle">
+                  MINING CYCLE
+                </span>
+
+                <strong id="timer-status">
+                  ACTIVE
+                </strong>
+              </div>
+            </div>
+
+            <div class="timer-val" id="timer-val">
+              24:00:00
+            </div>
+
+          </div>
+
+          <div class="progress-track">
+            <div
+              class="progress-fill"
+              id="mining-progress"
+              style="width:0%"
+            ></div>
+          </div>
+
+          <div class="timer-footer">
+            <span id="timer-caption" data-t="production_running">
+              Üretim devam ediyor
+            </span>
+
+            <button
+              class="mini-action hidden"
+              id="claim-mining-btn"
+              type="button"
+              data-t="restart_cycle"
+            >
+              Döngüyü Yenile
+            </button>
+          </div>
+
         </div>
 
+        <!-- CORE STATS -->
         <div class="stat-row">
-          <div class="stat-card">
-            <span class="stat-name" data-t="token">Token</span>
-            <span class="stat-num" id="token-val">0.0000</span>
+
+          <div class="stat-card stat-token">
+
+            <div class="stat-head">
+              <span class="stat-name" data-t="token">
+                Token
+              </span>
+
+              <span class="stat-icon">◈</span>
+            </div>
+
+            <strong
+              class="stat-num"
+              id="token-val"
+            >
+              0.0000
+            </strong>
+
+            <span
+              class="stat-sub"
+              id="token-per-day"
+            >
+              +36.15 / gün
+            </span>
+
           </div>
-          <div class="stat-card">
-            <span class="stat-name" data-t="power">Güç</span>
-            <span class="stat-num" id="power-val">0</span>
+
+          <div class="stat-card stat-power">
+
+            <div class="stat-head">
+              <span class="stat-name" data-t="power">
+                Güç
+              </span>
+
+              <span class="stat-icon">⚡</span>
+            </div>
+
+            <strong
+              class="stat-num"
+              id="power-val"
+            >
+              2 110
+            </strong>
+
+            <span
+              class="stat-sub"
+              id="power-rank-sub"
+            >
+              Gezegen
+            </span>
+
           </div>
+
         </div>
 
+        <!-- ACTIONS -->
         <div class="action-row">
-          <button class="act-btn blue" id="btn-sell" data-t="sell">Token Sat</button>
-          <button class="act-btn purple" id="btn-upgrade" data-t="upgrade">Yükselt</button>
+
+          <button
+            class="act-btn blue"
+            id="btn-sell"
+            type="button"
+          >
+            <span>◈</span>
+            <span data-t="sell">Token Sat</span>
+          </button>
+
+          <button
+            class="act-btn purple"
+            id="btn-upgrade"
+            type="button"
+          >
+            <span>⚡</span>
+            <span data-t="upgrade">Yükselt</span>
+          </button>
+
         </div>
 
-        <div class="info-card" id="ai-chat-card">
+        <!-- AGENT CARD -->
+        <div class="info-card agent-info-card">
+
           <div class="info-card-left">
-            <span class="info-icon">◈</span>
-            <span data-t="ai_agent">Astra Agent'ınız</span>
+
+            <div class="info-icon glow-blue">
+              ✦
+            </div>
+
+            <div class="info-main">
+              <strong data-t="ai_agent">
+                Astra Agent'ınız
+              </strong>
+
+              <span
+                id="agent-description"
+                data-t="agent_visual_only"
+              >
+                Görsel çekirdek yükseltmesi
+              </span>
+            </div>
+
           </div>
-          <button class="chip-btn red" id="chat-btn" data-t="chat">Sohbet</button>
+
+          <button
+            class="chip-btn red"
+            id="chat-btn"
+            type="button"
+          >
+            <span>◉</span>
+            <span data-t="chat">Sohbet</span>
+          </button>
+
         </div>
 
-        <div class="info-card" id="ref-quick-card">
+        <!-- REFERRAL QUICK CARD -->
+        <div class="info-card">
+
           <div class="info-card-left">
-            <span class="info-icon">◎</span>
-            <div class="ref-text-col">
-              <span data-t="ref_quick">1 arkadaş davet et</span>
-              <span class="green-small">+200 Güç</span>
+
+            <div class="info-icon glow-purple">
+              ◎
+            </div>
+
+            <div class="info-main">
+
+              <strong data-t="ref_quick">
+                1 arkadaş davet et
+              </strong>
+
+              <span class="green-small">
+                +200
+                <span data-t="power">
+                  Güç
+                </span>
+              </span>
+
+            </div>
+
+          </div>
+
+          <div
+            class="chip-badge"
+            id="ref-quick-badge"
+          >
+            0/1
+          </div>
+
+        </div>
+
+        <!-- STREAK -->
+        <div class="streak-card">
+
+          <div class="streak-left">
+
+            <div class="streak-icon-box">
+              🔥
+            </div>
+
+            <div>
+              <strong id="streak-count">
+                0
+              </strong>
+
+              <span data-t="day_streak">
+                günlük seri
+              </span>
+            </div>
+
+          </div>
+
+          <div class="rank-chip">
+
+            <span data-t="rank_label">
+              Rank
+            </span>
+
+            <strong id="rank-name">
+              Gezegen
+            </strong>
+
+          </div>
+
+        </div>
+
+        <!-- SYSTEM STATUS -->
+        <div class="system-card">
+
+          <div class="system-head">
+            <span data-t="system_status">
+              SYSTEM STATUS
+            </span>
+
+            <span class="status-live">
+              LIVE
+            </span>
+          </div>
+
+          <div class="system-lines">
+            <div>
+              <span>Mining Engine</span>
+              <strong>READY</strong>
+            </div>
+
+            <div>
+              <span>Simulation Layer</span>
+              <strong>ACTIVE</strong>
+            </div>
+
+            <div>
+              <span>Local Persistence</span>
+              <strong>ONLINE</strong>
             </div>
           </div>
-          <span class="chip-badge" id="ref-quick-badge">0/1</span>
+
         </div>
 
-        <!-- Streak / XP bar -->
-        <div class="streak-bar">
-          <div class="streak-left">
-            <span class="streak-icon">🔥</span>
-            <span id="streak-count">0</span>
-            <span class="streak-label" data-t="streak_label">günlük seri</span>
-          </div>
-          <div class="xp-pill">
-            <span data-t="rank_label">Rank:</span>
-            <span id="rank-name" class="rank-name">Gezegen</span>
-          </div>
-        </div>
       </section>
 
-      <!-- KAZAN -->
+      <!-- ======================================================
+           EARN
+      ======================================================= -->
       <section class="screen" id="screen-earn">
-        <h2 class="screen-title" data-t="earn_title">Kazan</h2>
 
-        <div class="tab-switch" role="tablist">
-          <button class="tab active" data-tab="invite" role="tab" data-t="tab_invite">Davet</button>
-          <button class="tab" data-tab="bonuses" role="tab" data-t="tab_bonuses">Bonuslar</button>
+        <div class="screen-heading">
+          <div>
+            <span class="eyebrow">REWARD NETWORK</span>
+            <h2
+              class="screen-title"
+              data-t="earn_title"
+            >
+              Kazan
+            </h2>
+          </div>
+
+          <div class="heading-icon">
+            ◈
+          </div>
         </div>
 
-        <div id="tab-invite" class="tab-pane active">
+        <div class="tab-switch" role="tablist">
+
+          <button
+            class="tab active"
+            data-tab="invite"
+            role="tab"
+            type="button"
+            data-t="tab_invite"
+          >
+            Davet
+          </button>
+
+          <button
+            class="tab"
+            data-tab="bonuses"
+            role="tab"
+            type="button"
+            data-t="tab_bonuses"
+          >
+            Bonuslar
+          </button>
+
+        </div>
+
+        <!-- INVITE -->
+        <div
+          id="tab-invite"
+          class="tab-pane active"
+        >
+
           <div class="ref-link-box">
-            <p class="ref-link-label" data-t="your_link">Referans linkiniz:</p>
-            <div class="ref-link-row">
-              <span class="ref-link-text" id="ref-link-text">yükleniyor…</span>
-              <button class="copy-btn" id="copy-ref-btn" aria-label="Kopyala">⎘</button>
+
+            <div class="box-label-row">
+              <span
+                class="ref-link-label"
+                data-t="your_link"
+              >
+                Referans linkiniz
+              </span>
+
+              <span class="link-status">
+                ● READY
+              </span>
             </div>
+
+            <div class="ref-link-row">
+
+              <span
+                class="ref-link-text"
+                id="ref-link-text"
+              >
+                loading...
+              </span>
+
+              <button
+                class="copy-btn"
+                id="copy-ref-btn"
+                aria-label="Kopyala"
+                type="button"
+              >
+                ⎘
+              </button>
+
+            </div>
+
           </div>
-          <button class="full-btn" id="share-ref-btn" data-t="share_btn">Arkadaş Davet Et</button>
+
+          <button
+            class="full-btn"
+            id="share-ref-btn"
+            type="button"
+          >
+            <span>↗</span>
+            <span data-t="share_btn">
+              Arkadaş Davet Et
+            </span>
+          </button>
+
+          <button
+            class="outline-btn"
+            id="simulate-ref-btn"
+            type="button"
+          >
+            <span>＋</span>
+            <span data-t="simulate_ref">
+              Demo arkadaş ekle
+            </span>
+          </button>
+
+          <div class="section-label">
+            <span data-t="referral_levels">
+              REFERANS SEVİYELERİ
+            </span>
+          </div>
 
           <div class="level-tabs" role="tablist">
-            <button class="lvl-tab active" data-level="1">1. Seviye</button>
-            <button class="lvl-tab" data-level="2">2. Seviye</button>
-            <button class="lvl-tab" data-level="3">3. Seviye</button>
+
+            <button
+              class="lvl-tab active"
+              data-level="1"
+              type="button"
+            >
+              1
+              <span data-t="level">
+                Seviye
+              </span>
+            </button>
+
+            <button
+              class="lvl-tab"
+              data-level="2"
+              type="button"
+            >
+              2
+              <span data-t="level">
+                Seviye
+              </span>
+            </button>
+
+            <button
+              class="lvl-tab"
+              data-level="3"
+              type="button"
+            >
+              3
+              <span data-t="level">
+                Seviye
+              </span>
+            </button>
+
           </div>
-          <div class="ref-list" id="ref-list">
-            <p class="empty-msg" data-t="no_refs">Henüz referansınız yok.</p>
-          </div>
+
+          <div
+            class="ref-list"
+            id="ref-list"
+          ></div>
+
         </div>
 
-        <div id="tab-bonuses" class="tab-pane hidden">
-          <div class="bonus-card">
-            <p class="bonus-head" data-t="bonus_head">Referans başına kazanın:</p>
-            <ul class="bonus-list">
-              <li><span class="bonus-pct">%15</span> <span data-t="level1_comm">1. seviye harcamalarından</span></li>
-              <li><span class="bonus-pct">%7</span> <span data-t="level2_comm">2. seviye harcamalarından</span></li>
-              <li><span class="bonus-pct">%2</span> <span data-t="level3_comm">3. seviye harcamalarından</span></li>
-            </ul>
-          </div>
-          <div class="bonus-card">
-            <p data-t="bonus_first_dep"><strong>+2500 Güç</strong> — davet ettiğiniz kişi ilk yatırımını yaptığında</p>
-            <p data-t="bonus_each"><strong>+200 Güç</strong> — her yeni kayıt için</p>
-          </div>
-        </div>
-      </section>
+        <!-- BONUSES -->
+        <div
+          id="tab-bonuses"
+          class="tab-pane hidden"
+        >
 
-      <!-- YÜKSELT -->
-      <section class="screen" id="screen-upgrade">
-        <h2 class="screen-title" data-t="upgrade_title">Güç Mağazası</h2>
-        <div class="upgrade-amount-box">
-          <p data-t="choose_usd">USD tutarı seçin:</p>
-          <div class="amount-slider-row">
-            <button class="amt-step" data-delta="-1">−</button>
-            <span class="amt-val" id="amt-val">3</span>
-            <button class="amt-step" data-delta="1">+</button>
-          </div>
-        </div>
-        <div class="upgrade-preview-card">
-          <div class="up-row"><span class="up-key" data-t="get_power">Alacağınız güç:</span><span class="up-val green" id="up-power">30 000</span></div>
-          <div class="up-row"><span class="up-key" data-t="first_bonus">İlk yatırım bonusu:</span><span class="up-val green" id="up-bonus">+6 000</span></div>
-          <div class="up-row"><span class="up-key" data-t="daily_tok">Günlük token:</span><span class="up-val" id="up-tok">514 / gün</span></div>
-          <div class="up-row"><span class="up-key" data-t="daily_profit">Günlük kâr:</span><span class="up-val">%1.71</span></div>
-        </div>
-        <p class="upgrade-note" data-t="power_stays">* Satın alınan güç hesapta sonsuza kalır</p>
-        <p class="upgrade-bonus-label">İlk yatırıma <strong>+%20 BONUS</strong></p>
-        <button class="full-btn" id="buy-power-btn" data-t="buy_power">Güç Satın Al</button>
+          <div class="bonus-card featured">
 
-        <div class="agent-unlock-card">
-          <div class="unlock-info">
-            <span class="unlock-icon">🔒</span>
-            <div>
-              <p data-t="unlock_head">Yeni agent kilidini açmak için güç artır</p>
-              <p class="unlock-need"><span data-t="need_power">Gerekli güç:</span> <strong>250 000</strong></p>
+            <div class="bonus-card-icon">
+              ✦
             </div>
+
+            <div>
+              <p
+                class="bonus-head"
+                data-t="bonus_head"
+              >
+                Referans başına kazanın
+              </p>
+
+              <ul class="bonus-list">
+
+                <li>
+                  <span class="bonus-pct">%15</span>
+                  <span data-t="level1_comm">
+                    1. seviye harcamalarından
+                  </span>
+                </li>
+
+                <li>
+                  <span class="bonus-pct">%7</span>
+                  <span data-t="level2_comm">
+                    2. seviye harcamalarından
+                  </span>
+                </li>
+
+                <li>
+                  <span class="bonus-pct">%2</span>
+                  <span data-t="level3_comm">
+                    3. seviye harcamalarından
+                  </span>
+                </li>
+
+              </ul>
+            </div>
+
           </div>
-          <button class="full-btn dim" id="unlock-agent-btn" data-t="unlock_btn">Kilidi Aç</button>
-          <p class="unlock-note" data-t="unlock_note">Agent'lar görsel yükseltmedir, kazanç hızını etkilemez.</p>
+
+          <div class="bonus-card">
+
+            <div class="bonus-row">
+              <div>
+                <strong data-t="registration_reward">
+                  Kayıt ödülü
+                </strong>
+
+                <span data-t="registration_reward_desc">
+                  Her yeni kayıt
+                </span>
+              </div>
+
+              <b class="green-text">+200</b>
+            </div>
+
+            <div class="bonus-row">
+              <div>
+                <strong data-t="deposit_reward">
+                  İlk yatırım
+                </strong>
+
+                <span data-t="deposit_reward_desc">
+                  İlk yatırım yapan referans
+                </span>
+              </div>
+
+              <b class="green-text">+2500</b>
+            </div>
+
+          </div>
+
         </div>
+
       </section>
 
-      <!-- GÖREVLER -->
-      <section class="screen" id="screen-tasks">
-        <h2 class="screen-title" data-t="tasks_title">Görevler</h2>
-        <div class="tab-switch" role="tablist">
-          <button class="tab active" data-tab="t-ref" role="tab" data-t="tab_ref">Referans</button>
-          <button class="tab" data-tab="t-follow" role="tab" data-t="tab_follow">Takip Et</button>
-          <button class="tab" data-tab="t-other" role="tab" data-t="tab_other">Diğer</button>
-        </div>
+      <!-- ======================================================
+           UPGRADE
+      ======================================================= -->
+      <section class="screen" id="screen-upgrade">
 
-        <div id="tab-t-ref" class="tab-pane active task-list" id="task-ref-list">
-          <div class="task-item" data-task="ref1" data-goal="1" data-reward="200">
-            <div class="task-left"><span class="task-icon">◎</span><div><p>1 arkadaş davet et</p><p class="task-reward green-small">+200 Güç</p></div></div>
-            <span class="task-badge" id="task-ref1">0/1</span>
-          </div>
-          <div class="task-item" data-task="ref3" data-goal="3" data-reward="500">
-            <div class="task-left"><span class="task-icon">◎</span><div><p>3 arkadaş davet et</p><p class="task-reward green-small">+500 Güç</p></div></div>
-            <span class="task-badge" id="task-ref3">0/3</span>
-          </div>
-          <div class="task-item" data-task="ref7" data-goal="7" data-reward="1500">
-            <div class="task-left"><span class="task-icon">◎</span><div><p>7 arkadaş davet et</p><p class="task-reward green-small">+1 500 Güç</p></div></div>
-            <span class="task-badge" id="task-ref7">0/7</span>
-          </div>
-          <div class="task-item" data-task="ref15" data-goal="15" data-reward="2500">
-            <div class="task-left"><span class="task-icon">◎</span><div><p>15 arkadaş davet et</p><p class="task-reward green-small">+2 500 Güç</p></div></div>
-            <span class="task-badge" id="task-ref15">0/15</span>
-          </div>
-          <div class="task-item" data-task="ref30" data-goal="30" data-reward="4000">
-            <div class="task-left"><span class="task-icon">◎</span><div><p>30 arkadaş davet et</p><p class="task-reward green-small">+4 000 Güç</p></div></div>
-            <span class="task-badge" id="task-ref30">0/30</span>
-          </div>
-          <div class="task-item" data-task="ref50" data-goal="50" data-reward="6000">
-            <div class="task-left"><span class="task-icon">◎</span><div><p>50 arkadaş davet et</p><p class="task-reward green-small">+6 000 Güç</p></div></div>
-            <span class="task-badge" id="task-ref50">0/50</span>
-          </div>
-        </div>
-
-        <div id="tab-t-follow" class="tab-pane hidden task-list">
-          <div class="task-item completable" data-task="follow-tg" data-reward="300">
-            <div class="task-left"><span class="task-icon">✦</span><div><p data-t="follow_channel">Telegram kanalını takip et</p><p class="task-reward green-small">+300 Güç</p></div></div>
-            <button class="task-go-btn" data-url="https://t.me/AstraMinerBot">Git →</button>
-          </div>
-          <div class="task-item completable" data-task="follow-x" data-reward="300">
-            <div class="task-left"><span class="task-icon">✦</span><div><p data-t="follow_x">X / Twitter'da takip et</p><p class="task-reward green-small">+300 Güç</p></div></div>
-            <button class="task-go-btn" data-url="https://x.com">Git →</button>
-          </div>
-          <div class="task-item daily-checkin" data-task="daily" data-reward="100">
-            <div class="task-left"><span class="task-icon">🔥</span><div><p data-t="daily_checkin">Günlük giriş yap</p><p class="task-reward green-small">+100 Güç</p></div></div>
-            <button class="task-go-btn" id="daily-btn">Al</button>
-          </div>
-        </div>
-
-        <div id="tab-t-other" class="tab-pane hidden task-list">
-          <div class="task-item completable" data-task="deposit5" data-reward="10000">
-            <div class="task-left"><span class="task-icon">◈</span><div><p data-t="task_dep5">Bakiye yükle: 5$</p><p class="task-reward green-small">+10 000 Güç</p></div></div>
-            <span class="task-badge">0/5</span>
-          </div>
-          <div class="task-item completable" data-task="reinvest5" data-reward="10000">
-            <div class="task-left"><span class="task-icon">◈</span><div><p data-t="task_reinv5">Yeniden yatırım yap: 5$</p><p class="task-reward green-small">+10 000 Güç</p></div></div>
-            <span class="task-badge">0/5</span>
-          </div>
-          <!-- Mini oyun -->
-          <div class="mini-game-card" id="mini-game-card">
-            <p class="mini-game-title" data-t="mini_game_title">⚡ Enerji Tıkla!</p>
-            <p class="mini-game-sub" data-t="mini_game_sub">10 saniyede çekirdeklere tıkla, token kazan.</p>
-            <button class="full-btn" id="start-game-btn" data-t="start_game">Oyunu Başlat</button>
-            <div id="game-area" class="game-area hidden"></div>
-            <p id="game-result" class="game-result hidden"></p>
-          </div>
-        </div>
-      </section>
-
-      <!-- ÖDEME -->
-      <section class="screen" id="screen-payment">
-        <h2 class="screen-title" data-t="pay_title">Ödeme</h2>
-        <div class="reinvest-banner">
-          <span class="reinvest-icon">⚡</span>
+        <div class="screen-heading">
           <div>
-            <p class="reinvest-head" data-t="reinvest_head">Yeniden yatırım +%5</p>
-            <p class="reinvest-sub" data-t="reinvest_sub">%0 Komisyon</p>
+            <span class="eyebrow">POWER CONTROL</span>
+
+            <h2
+              class="screen-title"
+              data-t="upgrade_title"
+            >
+              Güç Mağazası
+            </h2>
+          </div>
+
+          <div class="heading-icon">
+            ⚡
           </div>
         </div>
+
+        <div class="wallet-mini-card">
+
+          <div>
+            <span data-t="sim_balance">
+              Simülasyon bakiyesi
+            </span>
+
+            <strong>
+              $
+              <span id="upgrade-wallet">
+                10.0000
+              </span>
+            </strong>
+          </div>
+
+          <div class="wallet-orb">
+            ◈
+          </div>
+
+        </div>
+
+        <div class="upgrade-amount-box">
+
+          <p data-t="choose_usd">
+            USD tutarı seçin
+          </p>
+
+          <div class="amount-slider-row">
+
+            <button
+              class="amt-step"
+              data-delta="-1"
+              type="button"
+            >
+              −
+            </button>
+
+            <div class="amount-center">
+              <span class="currency-symbol">$</span>
+
+              <span
+                class="amt-val"
+                id="amt-val"
+              >
+                3
+              </span>
+            </div>
+
+            <button
+              class="amt-step"
+              data-delta="1"
+              type="button"
+            >
+              +
+            </button>
+
+          </div>
+
+          <div class="amount-presets">
+
+            <button class="preset active" data-amount="3" type="button">
+              $3
+            </button>
+
+            <button class="preset" data-amount="5" type="button">
+              $5
+            </button>
+
+            <button class="preset" data-amount="10" type="button">
+              $10
+            </button>
+
+            <button class="preset" data-amount="25" type="button">
+              $25
+            </button>
+
+          </div>
+
+        </div>
+
+        <div class="upgrade-preview-card">
+
+          <div class="preview-head">
+            <span data-t="upgrade_preview">
+              YATIRIM ÖNİZLEMESİ
+            </span>
+
+            <span class="live-dot">
+              LIVE
+            </span>
+          </div>
+
+          <div class="up-row">
+
+            <span
+              class="up-key"
+              data-t="get_power"
+            >
+              Alacağınız güç
+            </span>
+
+            <span
+              class="up-val green"
+              id="up-power"
+            >
+              30 000
+            </span>
+
+          </div>
+
+          <div class="up-row">
+
+            <span
+              class="up-key"
+              data-t="first_bonus"
+            >
+              İlk yatırım bonusu
+            </span>
+
+            <span
+              class="up-val green"
+              id="up-bonus"
+            >
+              +6 000
+            </span>
+
+          </div>
+
+          <div class="up-row">
+
+            <span
+              class="up-key"
+              data-t="total_power"
+            >
+              Toplam güç
+            </span>
+
+            <span
+              class="up-val"
+              id="up-total"
+            >
+              36 000
+            </span>
+
+          </div>
+
+          <div class="up-row">
+
+            <span
+              class="up-key"
+              data-t="daily_tok"
+            >
+              Günlük token
+            </span>
+
+            <span
+              class="up-val"
+              id="up-tok"
+            >
+              617 / gün
+            </span>
+
+          </div>
+
+          <div class="up-row">
+
+            <span
+              class="up-key"
+              data-t="daily_profit"
+            >
+              Verim oranı
+            </span>
+
+            <span class="up-val green">
+              1.71%
+            </span>
+
+          </div>
+
+        </div>
+
+        <div class="bonus-ribbon">
+          <span>✦</span>
+          <span data-t="first_purchase_bonus">
+            İlk simülasyon yatırımı için
+          </span>
+          <strong>+20%</strong>
+          <span data-t="power">
+            Güç
+          </span>
+        </div>
+
+        <button
+          class="full-btn"
+          id="buy-power-btn"
+          type="button"
+        >
+          <span>⚡</span>
+          <span data-t="buy_power">
+            Güç Satın Al
+          </span>
+        </button>
+
+        <p
+          class="upgrade-note"
+          data-t="power_stays"
+        >
+          * Satın alınan güç hesapta kalıcıdır.
+        </p>
+
+        <!-- AGENT UNLOCK -->
+        <div class="agent-unlock-card">
+
+          <div class="unlock-head">
+
+            <div class="unlock-icon">
+              ◉
+            </div>
+
+            <div>
+              <span class="eyebrow">
+                AGENT SYSTEM
+              </span>
+
+              <p
+                class="unlock-title"
+                data-t="unlock_head"
+              >
+                Yeni agent kilidini aç
+              </p>
+            </div>
+
+          </div>
+
+          <div
+            class="agent-unlock-grid"
+            id="agent-unlock-grid"
+          ></div>
+
+          <p
+            class="unlock-note"
+            data-t="unlock_note"
+          >
+            Agent'lar görsel yükseltmedir ve mining hızını değiştirmez.
+          </p>
+
+        </div>
+
+      </section>
+
+      <!-- ======================================================
+           TASKS
+      ======================================================= -->
+      <section class="screen" id="screen-tasks">
+
+        <div class="screen-heading">
+          <div>
+            <span class="eyebrow">MISSION CONTROL</span>
+
+            <h2
+              class="screen-title"
+              data-t="tasks_title"
+            >
+              Görevler
+            </h2>
+          </div>
+
+          <div class="task-progress-chip">
+            <span id="task-progress-value">
+              0%
+            </span>
+          </div>
+        </div>
+
+        <div class="tab-switch" role="tablist">
+
+          <button
+            class="tab active"
+            data-tab="t-ref"
+            role="tab"
+            type="button"
+            data-t="tab_ref"
+          >
+            Referans
+          </button>
+
+          <button
+            class="tab"
+            data-tab="t-follow"
+            role="tab"
+            type="button"
+            data-t="tab_follow"
+          >
+            Takip Et
+          </button>
+
+          <button
+            class="tab"
+            data-tab="t-other"
+            role="tab"
+            type="button"
+            data-t="tab_other"
+          >
+            Diğer
+          </button>
+
+        </div>
+
+        <div
+          id="tab-t-ref"
+          class="tab-pane active task-list"
+        >
+          <div id="task-ref-list"></div>
+        </div>
+
+        <div
+          id="tab-t-follow"
+          class="tab-pane hidden task-list"
+        >
+          <div id="task-follow-list"></div>
+        </div>
+
+        <div
+          id="tab-t-other"
+          class="tab-pane hidden task-list"
+        >
+
+          <div id="task-other-list"></div>
+
+          <!-- MINI GAME -->
+          <div class="mini-game-card">
+
+            <div class="mini-game-top">
+              <div>
+                <span class="eyebrow">
+                  MINI PROTOCOL
+                </span>
+
+                <p
+                  class="mini-game-title"
+                  data-t="mini_game_title"
+                >
+                  ⚡ Enerji Tıkla!
+                </p>
+              </div>
+
+              <span
+                class="game-daily-count"
+                id="game-daily-count"
+              >
+                0/3
+              </span>
+            </div>
+
+            <p
+              class="mini-game-sub"
+              data-t="mini_game_sub"
+            >
+              10 saniyede çekirdeklere tıkla, token kazan.
+            </p>
+
+            <button
+              class="full-btn"
+              id="start-game-btn"
+              type="button"
+            >
+              <span>▶</span>
+              <span data-t="start_game">
+                Oyunu Başlat
+              </span>
+            </button>
+
+            <div
+              id="game-area"
+              class="game-area hidden"
+            ></div>
+
+            <p
+              id="game-result"
+              class="game-result hidden"
+            ></p>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ======================================================
+           PAYMENT
+      ======================================================= -->
+      <section class="screen" id="screen-payment">
+
+        <div class="screen-heading">
+          <div>
+            <span class="eyebrow">SIMULATED WALLET</span>
+
+            <h2
+              class="screen-title"
+              data-t="pay_title"
+            >
+              Ödeme
+            </h2>
+          </div>
+
+          <div class="heading-icon">
+            ◇
+          </div>
+        </div>
+
+        <div class="reinvest-banner">
+
+          <div class="reinvest-icon">
+            ⚡
+          </div>
+
+          <div>
+            <p
+              class="reinvest-head"
+              data-t="reinvest_head"
+            >
+              Yeniden yatırım +5%
+            </p>
+
+            <p
+              class="reinvest-sub"
+              data-t="reinvest_sub"
+            >
+              Simülasyon komisyonu 0%
+            </p>
+          </div>
+
+        </div>
+
+        <div class="payment-balance-grid">
+
+          <div class="pay-balance">
+
+            <span data-t="available_usd">
+              Kullanılabilir USD
+            </span>
+
+            <strong>
+              $
+              <span id="payment-usd">
+                10.0000
+              </span>
+            </strong>
+
+          </div>
+
+          <div class="pay-balance">
+
+            <span data-t="token_value">
+              Token değeri
+            </span>
+
+            <strong>
+              $
+              <span id="payment-token-value">
+                0.0000
+              </span>
+            </strong>
+
+          </div>
+
+        </div>
+
+        <div class="section-label">
+          <span data-t="networks">
+            NETWORKS
+          </span>
+
+          <span class="section-label-note">
+            SIM ONLY
+          </span>
+        </div>
+
         <div class="crypto-list">
-          <div class="crypto-item">
-            <div class="crypto-logo bnb">B</div>
-            <div><p class="crypto-name">BNB</p><p class="crypto-net">Ağ: BNB</p></div>
-          </div>
-          <div class="crypto-item">
-            <div class="crypto-logo trx">T</div>
-            <div><p class="crypto-name">TRX</p><p class="crypto-net">Ağ: TRX</p></div>
-          </div>
-          <div class="crypto-item">
-            <div class="crypto-logo ton">◎</div>
-            <div><p class="crypto-name">TON</p><p class="crypto-net">Ağ: TON</p></div>
-          </div>
-          <div class="crypto-item">
-            <div class="crypto-logo usdt">$</div>
-            <div><p class="crypto-name">USDT</p><p class="crypto-net">Ağ: BEP20</p></div>
-          </div>
+
+          <button
+            class="crypto-item"
+            data-crypto="BNB"
+            type="button"
+          >
+
+            <div class="crypto-logo bnb">
+              B
+            </div>
+
+            <div class="crypto-copy">
+              <strong class="crypto-name">
+                BNB
+              </strong>
+
+              <span
+                class="crypto-net"
+                data-t="network_bnb"
+              >
+                Ağ: BNB
+              </span>
+            </div>
+
+            <span class="crypto-arrow">
+              ›
+            </span>
+
+          </button>
+
+          <button
+            class="crypto-item"
+            data-crypto="TRX"
+            type="button"
+          >
+
+            <div class="crypto-logo trx">
+              T
+            </div>
+
+            <div class="crypto-copy">
+              <strong class="crypto-name">
+                TRX
+              </strong>
+
+              <span
+                class="crypto-net"
+                data-t="network_trx"
+              >
+                Ağ: TRX
+              </span>
+            </div>
+
+            <span class="crypto-arrow">
+              ›
+            </span>
+
+          </button>
+
+          <button
+            class="crypto-item"
+            data-crypto="TON"
+            type="button"
+          >
+
+            <div class="crypto-logo ton">
+              ◎
+            </div>
+
+            <div class="crypto-copy">
+              <strong class="crypto-name">
+                TON
+              </strong>
+
+              <span
+                class="crypto-net"
+                data-t="network_ton"
+              >
+                Ağ: TON
+              </span>
+            </div>
+
+            <span class="crypto-arrow">
+              ›
+            </span>
+
+          </button>
+
+          <button
+            class="crypto-item"
+            data-crypto="USDT"
+            type="button"
+          >
+
+            <div class="crypto-logo usdt">
+              $
+            </div>
+
+            <div class="crypto-copy">
+              <strong class="crypto-name">
+                USDT
+              </strong>
+
+              <span
+                class="crypto-net"
+                data-t="network_usdt"
+              >
+                Ağ: BEP20
+              </span>
+            </div>
+
+            <span class="crypto-arrow">
+              ›
+            </span>
+
+          </button>
+
         </div>
-        <p class="pay-note" data-t="pay_note">Çekim yapmak için destek ekibiyle iletişime geçin.</p>
+
+        <div class="payment-actions">
+
+          <button
+            class="outline-btn"
+            id="history-btn"
+            type="button"
+          >
+            <span>▤</span>
+            <span data-t="tx_history">
+              İşlem geçmişi
+            </span>
+          </button>
+
+          <button
+            class="full-btn danger-gradient"
+            id="withdraw-btn"
+            type="button"
+          >
+            <span>↗</span>
+            <span data-t="withdraw">
+              Çekim Simülasyonu
+            </span>
+          </button>
+
+        </div>
+
+        <div class="simulation-warning">
+
+          <span>ⓘ</span>
+
+          <p data-t="simulation_warning">
+            Bu ekran tamamen simülasyondur. Gerçek blockchain işlemi, ödeme,
+            para transferi veya yatırım yapılmaz.
+          </p>
+
+        </div>
+
       </section>
 
     </main>
 
     <!-- BOTTOM NAV -->
-    <nav class="bottomnav" aria-label="Ana menü">
-      <button class="nav-btn" data-screen="upgrade" aria-label="Yükselt">
+    <nav
+      class="bottomnav"
+      aria-label="Ana menü"
+    >
+
+      <button
+        class="nav-btn"
+        data-screen="upgrade"
+        type="button"
+      >
         <span class="nav-icon">⚡</span>
-        <span class="nav-label" data-t="nav_upgrade">Yükselt</span>
+        <span
+          class="nav-label"
+          data-t="nav_upgrade"
+        >
+          Yükselt
+        </span>
       </button>
-      <button class="nav-btn" data-screen="earn" aria-label="Kazan">
+
+      <button
+        class="nav-btn"
+        data-screen="earn"
+        type="button"
+      >
         <span class="nav-icon">◈</span>
-        <span class="nav-label" data-t="nav_earn">Kazan</span>
+        <span
+          class="nav-label"
+          data-t="nav_earn"
+        >
+          Kazan
+        </span>
       </button>
-      <button class="nav-btn active" data-screen="ai" aria-label="AI">
+
+      <button
+        class="nav-btn active"
+        data-screen="ai"
+        type="button"
+      >
         <span class="nav-icon">✦</span>
-        <span class="nav-label" data-t="nav_ai">AI</span>
+        <span
+          class="nav-label"
+          data-t="nav_ai"
+        >
+          AI
+        </span>
       </button>
-      <button class="nav-btn" data-screen="tasks" aria-label="Görevler">
+
+      <button
+        class="nav-btn"
+        data-screen="tasks"
+        type="button"
+      >
         <span class="nav-icon">☑</span>
-        <span class="nav-label" data-t="nav_tasks">Görevler</span>
+
+        <span
+          class="nav-label"
+          data-t="nav_tasks"
+        >
+          Görevler
+        </span>
+
+        <span
+          class="nav-notification hidden"
+          id="task-nav-badge"
+        >
+          0
+        </span>
       </button>
-      <button class="nav-btn" data-screen="payment" aria-label="Ödeme">
+
+      <button
+        class="nav-btn"
+        data-screen="payment"
+        type="button"
+      >
         <span class="nav-icon">◇</span>
-        <span class="nav-label" data-t="nav_pay">Ödeme</span>
+
+        <span
+          class="nav-label"
+          data-t="nav_pay"
+        >
+          Ödeme
+        </span>
       </button>
+
     </nav>
 
     <!-- TOAST -->
-    <div id="toast" class="toast hidden" role="alert" aria-live="polite"></div>
+    <div
+      id="toast"
+      class="toast hidden"
+      role="alert"
+      aria-live="polite"
+    ></div>
 
-    <!-- SETTINGS PANEL -->
-    <div class="overlay hidden" id="settings-overlay">
+    <!-- SETTINGS OVERLAY -->
+    <div
+      class="overlay hidden"
+      id="settings-overlay"
+    >
       <div class="panel">
-        <button class="panel-close" id="settings-close">✕</button>
-        <h3 class="panel-title" data-t="settings_title">Ayarlar</h3>
+
+        <button
+          class="panel-close"
+          id="settings-close"
+          type="button"
+          aria-label="Kapat"
+        >
+          ✕
+        </button>
+
+        <span class="eyebrow">
+          SYSTEM CONFIG
+        </span>
+
+        <h3
+          class="panel-title"
+          data-t="settings_title"
+        >
+          Ayarlar
+        </h3>
+
         <div class="menu-list">
-          <button class="menu-item" id="menu-faq">FAQ</button>
-          <button class="menu-item" id="menu-support" data-t="support">Destek</button>
-          <button class="menu-item" id="menu-account" data-t="account">Hesap bilgileri</button>
-          <button class="menu-item" id="menu-ref2" data-t="ref_prog">Referans programı</button>
-          <button class="menu-item" id="menu-history" data-t="tx_history">İşlem geçmişi</button>
+
+          <button
+            class="menu-item"
+            id="menu-faq"
+            type="button"
+          >
+            <span>?</span>
+            <span data-t="faq">
+              FAQ
+            </span>
+            <b>›</b>
+          </button>
+
+          <button
+            class="menu-item"
+            id="menu-support"
+            type="button"
+          >
+            <span>◉</span>
+            <span data-t="support">
+              Destek
+            </span>
+            <b>›</b>
+          </button>
+
+          <button
+            class="menu-item"
+            id="menu-account"
+            type="button"
+          >
+            <span>◎</span>
+            <span data-t="account">
+              Hesap bilgileri
+            </span>
+            <b>›</b>
+          </button>
+
+          <button
+            class="menu-item"
+            id="menu-ref2"
+            type="button"
+          >
+            <span>↗</span>
+            <span data-t="ref_prog">
+              Referans programı
+            </span>
+            <b>›</b>
+          </button>
+
+          <button
+            class="menu-item"
+            id="menu-history"
+            type="button"
+          >
+            <span>▤</span>
+            <span data-t="tx_history">
+              İşlem geçmişi
+            </span>
+            <b>›</b>
+          </button>
+
         </div>
+
+        <div class="settings-foot">
+
+          <button
+            class="danger-outline"
+            id="reset-demo-btn"
+            type="button"
+            data-t="reset_demo"
+          >
+            Demo verilerini sıfırla
+          </button>
+
+          <p data-t="local_storage_note">
+            Veriler yalnızca bu tarayıcıdaki localStorage üzerinde saklanır.
+          </p>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- GENERIC MODAL -->
+    <div
+      class="modal-overlay hidden"
+      id="modal-overlay"
+    >
+
+      <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
+
+        <button
+          class="modal-close"
+          id="modal-close"
+          type="button"
+        >
+          ✕
+        </button>
+
+        <span
+          class="eyebrow"
+          id="modal-eyebrow"
+        >
+          ASTRA CORE
+        </span>
+
+        <h3
+          class="modal-title"
+          id="modal-title"
+        >
+          Modal
+        </h3>
+
+        <div
+          class="modal-body"
+          id="modal-body"
+        ></div>
+
+        <div
+          class="modal-actions"
+          id="modal-actions"
+        ></div>
+
       </div>
     </div>
 
