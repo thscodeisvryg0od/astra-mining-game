@@ -37,7 +37,7 @@ if (tg) {
    ============================================================ */
 
 const CONFIG = {
-  storageKey: "astra-mining-sim-v3",
+  storageKey: "astra-mining-sim-v4",
 
   simulation: true,
 
@@ -65,6 +65,36 @@ const CONFIG = {
   gameSpawnMs: 700,
 
   gameRewardPerPoint: 0.1,
+
+  // XP System
+  xpPerTokenSold: 1,
+  xpPerPowerUpgrade: 5,
+  xpPerTaskComplete: 10,
+  xpPerReferral: 20,
+  xpPerMiniGame: 5,
+  xpPerDailyCheckin: 15,
+
+  // Level thresholds
+  xpLevelThresholds: [0, 100, 300, 600, 1000, 1500, 2200, 3000, 4000, 5500, 7500, 10000, 13000, 17000, 22000],
+
+  // Daily Calendar
+  dailyCalendarDays: 30,
+  dailyCalendarRewards: [50, 60, 70, 80, 90, 100, 120, 150, 180, 200, 220, 250, 280, 300, 320, 350, 380, 400, 420, 450, 480, 500, 550, 600, 650, 700, 750, 800, 850, 900],
+  dailyCalendarSpecialDays: [7, 14, 21, 30],
+  dailyCalendarSpecialRewards: [300, 500, 800, 1200],
+
+  // Theme
+  themeDefault: "dark",
+  themes: ["dark", "light", "blue", "purple", "green"],
+
+  // Sound
+  soundEnabled: true,
+
+  // Mini Games
+  asteroidGameDuration: 15,
+  energyCollectGameDuration: 12,
+  asteroidGameRewardMultiplier: 1.5,
+  energyCollectGameRewardMultiplier: 2.0,
 };
 
 /* ============================================================
@@ -107,11 +137,80 @@ const AGENTS = [
     descriptionTr: "Nadir sınıf görsel ajan",
     descriptionEn: "Rare class visual agent",
   },
+
+  {
+    glyph: "\u2600",
+    label: "SUPERNOVA",
+    color: "#ff6b9d",
+    requiredPower: 3000000,
+    requiredXP: 6000,
+    descriptionTr: "Patlayici yildiz ajani",
+    descriptionEn: "Explosive star agent",
+  },
+
+  {
+    glyph: "\u2652",
+    label: "BLACKHOLE",
+    color: "#1a1a2e",
+    requiredPower: 5000000,
+    requiredXP: 10000,
+    descriptionTr: "Karanlik madde ajani",
+    descriptionEn: "Dark matter agent",
+  },
+
+  {
+    glyph: "\u2640",
+    label: "COSMOS",
+    color: "#00d4ff",
+    requiredPower: 8000000,
+    requiredXP: 15000,
+    descriptionTr: "Evrenin kalbi ajani",
+    descriptionEn: "Heart of universe agent",
+  },
+
+  {
+    glyph: "\u2650",
+    label: "VOID",
+    color: "#8b00ff",
+    requiredPower: 12000000,
+    requiredXP: 22000,
+    descriptionTr: "Bosluk ajani",
+    descriptionEn: "Void essence agent",
+  },
 ];
 
 /* ============================================================
    RANKS
    ============================================================ */
+
+/* ============================================================
+   ACHIEVEMENTS
+   ============================================================ */
+
+const ACHIEVEMENTS = [
+  { id: "first_mining", icon: "\u26cf", category: "mining", titleTr: "Ilk Madencilik", titleEn: "First Mining", reward: 1000, check: (s) => s.totalEarnedToken >= 10 },
+  { id: "first_sale", icon: "\u26cf", category: "mining", titleTr: "Ilk Satis", titleEn: "First Sale", reward: 1500, check: (s) => s.totalSoldToken >= 1 },
+  { id: "first_upgrade", icon: "\u26a1", category: "mining", titleTr: "Ilk Yukseltme", titleEn: "First Upgrade", reward: 2000, check: (s) => s.upgradeCount >= 1 },
+  { id: "power_100k", icon: "\u26a1", category: "power", titleTr: "100K Guc", titleEn: "100K Power", reward: 5000, check: (s) => s.power >= 100000 },
+  { id: "power_500k", icon: "\u26a1", category: "power", titleTr: "500K Guc", titleEn: "500K Power", reward: 10000, check: (s) => s.power >= 500000 },
+  { id: "power_1m", icon: "\u26a1", category: "power", titleTr: "1M Guc", titleEn: "1M Power", reward: 20000, check: (s) => s.power >= 1000000 },
+  { id: "token_100", icon: "\u26cf", category: "token", titleTr: "100 Token", titleEn: "100 Tokens", reward: 3000, check: (s) => s.totalEarnedToken >= 100 },
+  { id: "token_500", icon: "\u26cf", category: "token", titleTr: "500 Token", titleEn: "500 Tokens", reward: 8000, check: (s) => s.totalEarnedToken >= 500 },
+  { id: "token_1000", icon: "\u26cf", category: "token", titleTr: "1K Token", titleEn: "1K Tokens", reward: 15000, check: (s) => s.totalEarnedToken >= 1000 },
+  { id: "usd_100", icon: "\u26cf", category: "earning", titleTr: "$100 Kazan", titleEn: "Earn $100", reward: 5000, check: (s) => s.totalSoldToken * CONFIG.tokenPriceUsd >= 100 },
+  { id: "first_referral", icon: "\u26cf", category: "social", titleTr: "Ilk Referans", titleEn: "First Referral", reward: 3000, check: (s) => s.refCount >= 1 },
+  { id: "five_referrals", icon: "\u26cf", category: "social", titleTr: "5 Referans", titleEn: "5 Referrals", reward: 10000, check: (s) => s.refCount >= 5 },
+  { id: "first_task", icon: "\u26cf", category: "tasks", titleTr: "Ilk Gorev", titleEn: "First Task", reward: 2000, check: (s) => s.completedTasks.length >= 1 },
+  { id: "five_tasks", icon: "\u26cf", category: "tasks", titleTr: "5 Gorev", titleEn: "5 Tasks", reward: 5000, check: (s) => s.completedTasks.length >= 5 },
+  { id: "daily_7", icon: "\u26cf", category: "daily", titleTr: "7 Gun Giris", titleEn: "7 Day Streak", reward: 8000, check: (s) => s.streakCount >= 7 },
+  { id: "daily_30", icon: "\u26cf", category: "daily", titleTr: "30 Gun Giris", titleEn: "30 Day Streak", reward: 25000, check: (s) => s.streakCount >= 30 },
+  { id: "all_agents", icon: "\u26cf", category: "agents", titleTr: "Tum Ajanlar", titleEn: "All Agents", reward: 50000, check: (s) => s.agentIndex >= AGENTS.length - 1 },
+  { id: "star_rank", icon: "\u26cf", category: "ranks", titleTr: "Yildiz Ranki", titleEn: "Star Rank", reward: 10000, check: (s) => getRank(s.power).minPower >= 20000 },
+  { id: "galaxy_rank", icon: "\u26cf", category: "ranks", titleTr: "Galaksi Ranki", titleEn: "Galaxy Rank", reward: 20000, check: (s) => getRank(s.power).minPower >= 150000 },
+  { id: "level_5", icon: "\u26cf", category: "levels", titleTr: "Seviye 5", titleEn: "Level 5", reward: 5000, check: (s) => s.level >= 5 },
+  { id: "level_10", icon: "\u26cf", category: "levels", titleTr: "Seviye 10", titleEn: "Level 10", reward: 15000, check: (s) => s.level >= 10 },
+  { id: "level_15", icon: "\u26cf", category: "levels", titleTr: "Seviye 15", titleEn: "Level 15", reward: 30000, check: (s) => s.level >= 15 },
+];
 
 const RANKS = [
   {
@@ -585,7 +684,7 @@ function generateGuestId() {
 
 function buildDefaultState() {
   return {
-    version: 3,
+    version: 4,
 
     userId: generateGuestId(),
 
@@ -598,6 +697,13 @@ function buildDefaultState() {
     token: 0,
 
     power: 2110,
+    xp: 0,
+    level: 1,
+    unlockedAchievements: [],
+    dailyCalendarClaims: [],
+    dailyCalendarDate: null,
+    theme: CONFIG.themeDefault,
+    soundEnabled: CONFIG.soundEnabled,
 
     totalEarnedToken: 0,
 
@@ -918,6 +1024,217 @@ function getRankName(rank) {
   return state.lang === "tr"
     ? rank.nameTr
     : rank.nameEn;
+}
+
+/* ============================================================
+   XP & LEVEL SYSTEM
+   ============================================================ */
+
+function addXP(amount) {
+  const oldLevel = state.level;
+  state.xp += Math.floor(amount);
+  let newLevel = 1;
+  for (let i = CONFIG.xpLevelThresholds.length - 1; i >= 0; i--) {
+    if (state.xp >= CONFIG.xpLevelThresholds[i]) {
+      newLevel = i + 1;
+      break;
+    }
+  }
+  if (newLevel > state.level) {
+    state.level = newLevel;
+    showToast("Level Up! " + newLevel);
+    addTransaction({ type: "level_up", amount: newLevel, label: "Level Up", meta: "XP:" + state.xp });
+  }
+  saveState();
+  updateUI();
+}
+
+function getXPForLevel(level) {
+  return CONFIG.xpLevelThresholds[Math.min(level - 1, CONFIG.xpLevelThresholds.length - 1)] || 0;
+}
+
+function getXPProgress() {
+  const currentLevelXP = getXPForLevel(state.level);
+  const nextLevelXP = getXPForLevel(state.level + 1);
+  const xpInLevel = state.xp - currentLevelXP;
+  const xpNeeded = nextLevelXP - currentLevelXP;
+  return { current: xpInLevel, needed: xpNeeded, percent: Math.min(100, Math.round((xpInLevel / xpNeeded) * 100)) };
+}
+
+/* ============================================================
+   ACHIEVEMENT SYSTEM
+   ============================================================ */
+
+function checkAllAchievements() {
+  for (const ach of ACHIEVEMENTS) {
+    if (!state.unlockedAchievements.includes(ach.id) && ach.check(state)) {
+      unlockAchievement(ach);
+    }
+  }
+}
+
+function unlockAchievement(achievement) {
+  state.unlockedAchievements.push(achievement.id);
+  state.power += achievement.reward;
+  addXP(achievement.reward / 2);
+  addTransaction({ type: "achievement", amount: achievement.reward, label: "Achievement: " + (state.lang === "tr" ? achievement.titleTr : achievement.titleEn), meta: achievement.id });
+  saveState();
+  updateUI();
+  showToast("Achievement Unlocked! " + (state.lang === "tr" ? achievement.titleTr : achievement.titleEn));
+}
+
+function getAchievementProgress() {
+  return {
+    total: ACHIEVEMENTS.length,
+    unlocked: state.unlockedAchievements.length,
+    percent: Math.round((state.unlockedAchievements.length / ACHIEVEMENTS.length) * 100)
+  };
+}
+
+/* ============================================================
+   THEME SYSTEM
+   ============================================================ */
+
+const THEMES = {
+  dark: {
+    bg: "#040611", bg2: "#070b17", bg3: "#0b1120",
+    surface: "rgba(12, 19, 36, 0.84)", surface2: "rgba(17, 26, 48, 0.92)",
+    text: "#edf3ff", textSoft: "#b8c6e3", muted: "#6d7ea2", dim: "#435270",
+    accent: "#4f8fff", accent2: "#7b5fff", green: "#28d98d", red: "#ff5b70", amber: "#ffb84d",
+    border: "rgba(115, 147, 230, 0.14)", borderStrong: "rgba(115, 147, 230, 0.27)"
+  },
+  light: {
+    bg: "#f5f7fa", bg2: "#e8ecf1", bg3: "#dce0e6",
+    surface: "rgba(255, 255, 255, 0.95)", surface2: "rgba(240, 242, 245, 0.95)",
+    text: "#1a1a2e", textSoft: "#4a4a6a", muted: "#8a8ab8", dim: "#cacacc",
+    accent: "#4f8fff", accent2: "#7b5fff", green: "#28d98d", red: "#ff5b70", amber: "#ffb84d",
+    border: "rgba(115, 147, 230, 0.2)", borderStrong: "rgba(115, 147, 230, 0.3)"
+  },
+  blue: {
+    bg: "#0a0e2a", bg2: "#0d1435", bg3: "#101a40",
+    surface: "rgba(20, 30, 60, 0.85)", surface2: "rgba(30, 40, 70, 0.9)",
+    text: "#e0e8ff", textSoft: "#a8b8e0", muted: "#7a8aac", dim: "#5a6a8c",
+    accent: "#00b4ff", accent2: "#0088ff", green: "#00ffaa", red: "#ff6688", amber: "#ffcc66",
+    border: "rgba(100, 180, 255, 0.15)", borderStrong: "rgba(100, 180, 255, 0.25)"
+  },
+  purple: {
+    bg: "#1a0a2a", bg2: "#240d35", bg3: "#2e1040",
+    surface: "rgba(40, 20, 60, 0.85)", surface2: "rgba(50, 30, 70, 0.9)",
+    text: "#f0e0ff", textSoft: "#c8b0e8", muted: "#a088c8", dim: "#806aac",
+    accent: "#b868ff", accent2: "#9848ff", green: "#88ff88", red: "#ff88aa", amber: "#ffcc88",
+    border: "rgba(180, 100, 255, 0.15)", borderStrong: "rgba(180, 100, 255, 0.25)"
+  },
+  green: {
+    bg: "#0a2a1a", bg2: "#0d3524", bg3: "#10402e",
+    surface: "rgba(20, 60, 30, 0.85)", surface2: "rgba(30, 70, 40, 0.9)",
+    text: "#e0ffe0", textSoft: "#a8e8a8", muted: "#7ac87a", dim: "#5aac5a",
+    accent: "#00ff88", accent2: "#00cc66", green: "#88ff88", red: "#ff8888", amber: "#ffcc88",
+    border: "rgba(100, 255, 100, 0.15)", borderStrong: "rgba(100, 255, 100, 0.25)"
+  }
+};
+
+function applyTheme() {
+  const theme = THEMES[state.theme] || THEMES.dark;
+  const root = document.documentElement;
+  Object.entries(theme).forEach(([key, value]) => {
+    root.style.setProperty(`--${key}`, value);
+  });
+  const colorScheme = state.theme === "light" ? "light" : "dark";
+  const metaTag = document.querySelector("meta[name='color-scheme']");
+  if (metaTag) metaTag.setAttribute("content", colorScheme);
+}
+
+function setTheme(themeName) {
+  if (!CONFIG.themes.includes(themeName)) return;
+  state.theme = themeName;
+  applyTheme();
+  saveState();
+  updateUI();
+}
+
+/* ============================================================
+   SOUND SYSTEM
+   ============================================================ */
+
+let audioContext = null;
+
+function initAudio() {
+  if (!window.AudioContext && !window.webkitAudioContext) return;
+  if (audioContext) return;
+  try {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  } catch (error) {
+    console.warn("Audio initialization failed:", error);
+  }
+}
+
+function playSound(name) {
+  if (!state.soundEnabled || !audioContext) return;
+  try {
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    const freqMap = { click: 800, upgrade: 1000, achievement: 1200, mining: 600, sell: 900, game: 1100 };
+    const durMap = { click: 0.1, upgrade: 0.2, achievement: 0.3, mining: 0.15, sell: 0.12, game: 0.25 };
+    oscillator.frequency.value = freqMap[name] || 800;
+    oscillator.type = "sine";
+    const now = audioContext.currentTime;
+    gainNode.gain.setValueAtTime(0, now);
+    gainNode.gain.linearRampToValueAtTime(0.1, now + 0.01);
+    gainNode.gain.linearRampToValueAtTime(0, now + (durMap[name] || 0.1));
+    oscillator.start(now);
+    oscillator.stop(now + (durMap[name] || 0.1));
+  } catch (error) {
+    console.warn("Sound play failed:", error);
+  }
+}
+
+function toggleSound() {
+  state.soundEnabled = !state.soundEnabled;
+  saveState();
+  updateUI();
+}
+
+/* ============================================================
+   DAILY CALENDAR SYSTEM
+   ============================================================ */
+
+function todayKey() {
+  const now = new Date();
+  return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, "0"), String(now.getDate()).padStart(2, "0")].join("-");
+}
+
+function getDailyCalendarStatus() {
+  const today = todayKey();
+  const lastClaim = state.dailyCalendarDate || "";
+  if (lastClaim !== today) {
+    state.dailyCalendarClaims = [];
+    state.dailyCalendarDate = today;
+    saveState();
+  }
+  return {
+    canClaim: state.dailyCalendarClaims.length < CONFIG.dailyCalendarDays,
+    claimedDays: state.dailyCalendarClaims,
+    totalDays: CONFIG.dailyCalendarDays,
+    isComplete: state.dailyCalendarClaims.length === CONFIG.dailyCalendarDays
+  };
+}
+
+function claimDailyCalendar(day) {
+  const status = getDailyCalendarStatus();
+  if (!status.canClaim || status.claimedDays.includes(day)) return;
+  const isSpecialDay = CONFIG.dailyCalendarSpecialDays.includes(day);
+  const rewardIndex = CONFIG.dailyCalendarSpecialDays.indexOf(day);
+  const reward = isSpecialDay ? CONFIG.dailyCalendarSpecialRewards[rewardIndex] : CONFIG.dailyCalendarRewards[day - 1];
+  state.power += reward;
+  state.dailyCalendarClaims.push(day);
+  state.dailyCalendarDate = todayKey();
+  addXP(CONFIG.xpPerDailyCheckin);
+  saveState();
+  updateUI();
+  showToast("Daily Calendar Day " + day + "! +" + reward + " Power");
+  checkAllAchievements();
 }
 
 /* ============================================================
