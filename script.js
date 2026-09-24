@@ -267,6 +267,12 @@ const TR = {
 
   token: "Token",
   power: "Güç",
+
+  theme: "Tema",
+  sound: "Ses",
+  on: "Açık",
+  off: "Kapalı",
+  calendar_can_claim: "Ödülünü al!",
   sell: "Token Sat",
   upgrade: "Yükselt",
 
@@ -366,7 +372,18 @@ const TR = {
   nav_earn: "Kazan",
   nav_ai: "AI",
   nav_tasks: "Görevler",
+
+  nav_achievements: "Başarılar",
+  nav_calendar: "Takvim",
   nav_pay: "Ödeme",
+
+  achievements_title: "Başarılar",
+  calendar_title: "Günlük Takvim",
+  calendar_info: "Her gün giriş yaparak ödül kazanın",
+  all: "Hepsi",
+  mining: "Madencilik",
+  social: "Sosyal",
+  tasks: "Görevler",
 
   settings_title: "Ayarlar",
   faq: "FAQ",
@@ -469,6 +486,12 @@ const EN = {
 
   token: "Token",
   power: "Power",
+
+  theme: "Theme",
+  sound: "Sound",
+  on: "On",
+  off: "Off",
+  calendar_can_claim: "Claim your reward!",
   sell: "Sell Token",
   upgrade: "Upgrade",
 
@@ -568,7 +591,18 @@ const EN = {
   nav_earn: "Earn",
   nav_ai: "AI",
   nav_tasks: "Tasks",
+
+  nav_achievements: "Achievements",
+  nav_calendar: "Calendar",
   nav_pay: "Payment",
+
+  achievements_title: "Achievements",
+  calendar_title: "Daily Calendar",
+  calendar_info: "Earn rewards by checking in daily",
+  all: "All",
+  mining: "Mining",
+  social: "Social",
+  tasks: "Tasks",
 
   settings_title: "Settings",
   faq: "FAQ",
@@ -1586,6 +1620,9 @@ function claimTask(taskId) {
     meta: taskId,
   });
 
+  addXP(CONFIG.xpPerTaskComplete);
+  checkAllAchievements();
+
   saveState();
   updateUI();
 
@@ -1635,6 +1672,9 @@ function performDailyCheckin() {
   if (!isTaskCompleted("daily")) {
     state.completedTasks.push("daily");
   }
+
+  addXP(CONFIG.xpPerDailyCheckin);
+  checkAllAchievements();
 
   saveState();
   updateUI();
@@ -1706,6 +1746,9 @@ function createDemoReferral() {
     label: t("referral_bonus"),
     meta: username,
   });
+
+  addXP(CONFIG.xpPerReferral);
+  checkAllAchievements();
 
   saveState();
   updateUI();
@@ -1909,6 +1952,9 @@ function applyPowerPurchase(
         : ""),
   });
 
+  addXP(CONFIG.xpPerPowerUpgrade * cost);
+  checkAllAchievements();
+
   saveState();
   updateUI();
 
@@ -2013,6 +2059,9 @@ function sellTokens() {
                 4
               )} TOKEN`,
           });
+
+          addXP(CONFIG.xpPerTokenSold * amount);
+          checkAllAchievements();
 
           saveState();
           closeModal();
@@ -2631,6 +2680,9 @@ function endMiniGame() {
     label: t("game_end"),
     meta: `score:${gameScore}`,
   });
+
+  addXP(CONFIG.xpPerMiniGame * gameScore);
+  checkAllAchievements();
 
   if (result) {
     result.classList.remove(
@@ -3932,6 +3984,28 @@ function updateUI() {
       "1.71%";
   }
 
+
+  /* XP AND LEVEL */
+  if ($("xp-val")) {
+    $("xp-val").textContent = formatCompact(state.xp);
+  }
+  
+  if ($("level-badge")) {
+    $("level-badge").textContent = "Lvl " + state.level;
+  }
+
+  /* SOUND BUTTON STATE */
+  const soundBtn = $("sound-btn");
+  if (soundBtn) {
+    soundBtn.classList.toggle("active", state.soundEnabled);
+  }
+
+  /* THEME BUTTON ICON */
+  const themeBtn = $("theme-btn");
+  if (themeBtn) {
+    const themeIcons = { dark: "☀️", light: "🌙", blue: "🔵", purple: "🟣", green: "🟢" };
+    themeBtn.innerHTML = themeIcons[state.theme] || "☀️";
+  }
   /* LANGUAGE */
   if ($("lang-flag")) {
     $("lang-flag").textContent =
@@ -4402,6 +4476,142 @@ function setupPaymentActions() {
   );
 }
 
+
+function setupThemeControls() {
+  $("theme-btn")?.addEventListener("click", () => {
+    const themes = CONFIG.themes;
+    const currentIndex = themes.indexOf(state.theme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setTheme(themes[nextIndex]);
+    showToast(t("theme") + ": " + themes[nextIndex]);
+  });
+}
+
+function setupSoundControls() {
+  $("sound-btn")?.addEventListener("click", () => {
+    toggleSound();
+    const status = state.soundEnabled ? t("on") : t("off");
+    showToast(t("sound") + ": " + status);
+  });
+}
+
+function setupAchievementControls() {
+  $("achievements-btn")?.addEventListener("click", () => {
+    goScreen("achievements");
+  });
+}
+
+function renderAchievements(filter = "all") {
+  const container = $("achievement-list");
+  if (!container) return;
+
+  const filtered = filter === "all" 
+    ? ACHIEVEMENTS 
+    : ACHIEVEMENTS.filter(a => a.category === filter);
+
+  container.innerHTML = filtered.map(ach => {
+    const isUnlocked = state.unlockedAchievements.includes(ach.id);
+    const title = state.lang === "tr" ? ach.titleTr : ach.titleEn;
+    return `
+      <div class="achievement-card ${isUnlocked ? "" : "locked"}" data-id="${ach.id}">
+        <div class="achievement-icon">${ach.icon}</div>
+        <div class="achievement-info">
+          <span class="achievement-title">${title}</span>
+          <span class="achievement-category">${ach.category}</span>
+        </div>
+        <span class="achievement-reward">+${formatCompact(ach.reward)} Power</span>
+        ${isUnlocked ? '<span class="achievement-check">✓</span>' : ''}
+      </div>
+    `;
+  }).join("");
+
+  // Add click handlers
+  container.querySelectorAll(".achievement-card:not(.locked)").forEach(card => {
+    card.addEventListener("click", () => {
+      const achId = card.dataset.id;
+      if (!state.unlockedAchievements.includes(achId)) {
+        const ach = ACHIEVEMENTS.find(a => a.id === achId);
+        if (ach && ach.check(state)) {
+          unlockAchievement(ach);
+          renderAchievements(filter);
+        }
+      }
+    });
+  });
+}
+
+function renderCalendar() {
+  const container = $("calendar-grid");
+  if (!container) return;
+
+  const status = getDailyCalendarStatus();
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDayOfWeek = new Date(year, month, 1).getDay();
+
+  let html = "";
+  
+  // Add empty cells for days before the first day of the month
+  for (let i = 0; i < firstDayOfWeek; i++) {
+    html += '<div class="calendar-day locked"></div>';
+  }
+
+  // Add days of the month
+  for (let day = 1; day <= Math.min(daysInMonth, CONFIG.dailyCalendarDays); day++) {
+    const isSpecial = CONFIG.dailyCalendarSpecialDays.includes(day);
+    const isClaimed = status.claimedDays.includes(day);
+    const isLocked = day > status.currentDay;
+    const reward = isSpecial 
+      ? CONFIG.dailyCalendarSpecialRewards[CONFIG.dailyCalendarSpecialDays.indexOf(day)]
+      : CONFIG.dailyCalendarRewards[day - 1];
+
+    let dayClass = "calendar-day";
+    if (isClaimed) dayClass += " claimed";
+    if (isLocked) dayClass += " locked";
+    if (isSpecial) dayClass += " special";
+
+    html += `
+      <div class="${dayClass}" data-day="${day}" data-claimed="${isClaimed}">
+        <span class="calendar-day-number">${day}</span>
+        <span class="calendar-day-reward">+${reward}</span>
+        ${isClaimed ? '<span class="calendar-day-check">✓</span>' : ''}
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+
+  // Add click handlers
+  container.querySelectorAll(".calendar-day:not(.locked):not(.claimed)").forEach(dayEl => {
+    dayEl.addEventListener("click", () => {
+      const day = parseInt(dayEl.dataset.day);
+      claimDailyCalendar(day);
+      renderCalendar();
+    });
+  });
+
+  // Update info text
+  const infoText = $("calendar-info-text");
+  if (infoText) {
+    infoText.textContent = status.canClaim 
+      ? t("calendar_can_claim")
+      : t("calendar_info");
+  }
+}
+
+function setupCalendarControls() {
+  // Filter buttons for achievements
+  $$(".filter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      $$(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderAchievements(btn.dataset.filter);
+    });
+  });
+}
+
 function setupSettingsActions() {
   $("settings-btn")?.addEventListener(
     "click",
@@ -4541,6 +4751,13 @@ window.addEventListener(
     setupTaskActions();
     setupPaymentActions();
     setupSettingsActions();
+
+    setupThemeControls();
+    setupSoundControls();
+    setupAchievementControls();
+    setupCalendarControls();
+    renderAchievements();
+    renderCalendar();
     setupModalActions();
     setupTabs();
 

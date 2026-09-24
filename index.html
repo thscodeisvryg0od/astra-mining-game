@@ -63,6 +63,22 @@
 
           <span class="balance-unit">USD</span>
         </div>
+        <div class="xp-pill">
+          <span class="xp-icon">✨</span>
+          <span id="xp-val">0</span>
+          <span class="xp-unit">XP</span>
+          <span class="level-badge" id="level-badge">Lvl 1</span>
+        </div>
+
+        <button
+          class="icon-btn"
+          id="achievements-btn"
+          aria-label="Başarılar"
+          type="button"
+        >
+          🏆
+        </button>
+
 
         <button
           class="lang-btn"
@@ -71,6 +87,24 @@
           type="button"
         >
           <span id="lang-flag">🇹🇷</span>
+        </button>
+
+        <button
+          class="icon-btn"
+          id="theme-btn"
+          aria-label="Tema"
+          type="button"
+        >
+          ☀️
+        </button>
+
+        <button
+          class="icon-btn"
+          id="sound-btn"
+          aria-label="Ses"
+          type="button"
+        >
+          🔊
         </button>
 
         <button
@@ -977,6 +1011,62 @@
       <!-- ======================================================
            TASKS
       ======================================================= -->
+
+      <!-- ======================================================
+           ACHIEVEMENTS
+      ======================================================= -->
+      <section class="screen" id="screen-achievements">
+
+        <div class="screen-heading">
+          <div>
+            <span class="eyebrow">ACCOMPLISHMENTS</span>
+
+            <h2
+              class="screen-title"
+              data-t="achievements_title"
+            >
+              Başarılar
+            </h2>
+          </div>
+        </div>
+
+        <div class="achievement-filter">
+          <button class="filter-btn active" data-filter="all" type="button" data-t="all">Hepsi</button>
+          <button class="filter-btn" data-filter="mining" type="button" data-t="mining">Madencilik</button>
+          <button class="filter-btn" data-filter="social" type="button" data-t="social">Sosyal</button>
+          <button class="filter-btn" data-filter="tasks" type="button" data-t="tasks">Görevler</button>
+        </div>
+
+        <div id="achievement-list"></div>
+
+      </section>
+
+      <!-- ======================================================
+           CALENDAR
+      ======================================================= -->
+      <section class="screen" id="screen-calendar">
+
+        <div class="screen-heading">
+          <div>
+            <span class="eyebrow">DAILY REWARDS</span>
+
+            <h2
+              class="screen-title"
+              data-t="calendar_title"
+            >
+              Günlük Takvim
+            </h2>
+          </div>
+        </div>
+
+        <div class="calendar-grid" id="calendar-grid"></div>
+
+        <div class="calendar-info">
+          <p id="calendar-info-text" data-t="calendar_info">Her gün giriş yaparak ödül kazanın</p>
+        </div>
+
+      </section>
+
       <section class="screen" id="screen-tasks">
 
         <div class="screen-heading">
@@ -1408,6 +1498,51 @@
           data-t="nav_ai"
         >
           AI
+        </span>
+      </button>
+
+
+      <button
+        class="nav-btn"
+        data-screen="achievements"
+        type="button"
+      >
+        <span class="nav-icon">🏆</span>
+
+        <span
+          class="nav-label"
+          data-t="nav_achievements"
+        >
+          Başarılar
+        </span>
+
+        <span
+          class="nav-notification hidden"
+          id="achievement-nav-badge"
+        >
+          0
+        </span>
+      </button>
+
+      <button
+        class="nav-btn"
+        data-screen="calendar"
+        type="button"
+      >
+        <span class="nav-icon">📅</span>
+
+        <span
+          class="nav-label"
+          data-t="nav_calendar"
+        >
+          Takvim
+        </span>
+
+        <span
+          class="nav-notification hidden"
+          id="calendar-nav-badge"
+        >
+          0
         </span>
       </button>
 

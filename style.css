@@ -3526,3 +3526,303 @@ button:focus-visible {
 .history-row .muted {
   color: var(--red);
 }
+
+/* ============================================================
+   XP AND LEVEL STYLES
+   ============================================================ */
+
+.xp-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(115, 147, 230, 0.08);
+  border: 1px solid var(--border);
+}
+
+.xp-icon {
+  font-size: 0.75rem;
+  color: var(--amber);
+}
+
+.xp-unit {
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+
+.level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+/* ============================================================
+   THEME & SOUND BUTTONS
+   ============================================================ */
+
+.icon-btn {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.icon-btn.active {
+  background: rgba(79, 143, 255, 0.14);
+}
+
+/* ============================================================
+   ACHIEVEMENTS SCREEN
+   ============================================================ */
+
+.achievement-filter {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.filter-btn {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-soft);
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.filter-btn.active {
+  border-color: var(--accent);
+  background: rgba(79, 143, 255, 0.14);
+  color: var(--accent);
+}
+
+#achievement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.achievement-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.achievement-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.achievement-card.locked {
+  opacity: 0.5;
+  filter: grayscale(0.5);
+}
+
+.achievement-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.achievement-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.achievement-title {
+  display: block;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.achievement-category {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(115, 147, 230, 0.14);
+  color: var(--text-soft);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.achievement-reward {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--green);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.achievement-check {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.achievement-check.hidden {
+  display: none;
+}
+
+/* ============================================================
+   CALENDAR SCREEN
+   ============================================================ */
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: var(--radius-xs);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.calendar-day:hover:not(.locked):not(.claimed) {
+  border-color: var(--accent);
+  background: rgba(79, 143, 255, 0.08);
+}
+
+.calendar-day.claimed {
+  border-color: var(--green);
+  background: rgba(40, 217, 141, 0.14);
+}
+
+.calendar-day.locked {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.calendar-day.special {
+  border-color: var(--accent-2);
+  background: rgba(123, 95, 255, 0.14);
+}
+
+.calendar-day.special.claimed {
+  border-color: var(--green);
+  background: rgba(40, 217, 141, 0.2);
+}
+
+.calendar-day-number {
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.calendar-day-reward {
+  color: var(--amber);
+  font-size: 0.55rem;
+  font-weight: 600;
+}
+
+.calendar-day-check {
+  color: var(--green);
+  font-size: 0.8rem;
+}
+
+.calendar-info {
+  text-align: center;
+  padding: 16px;
+}
+
+.calendar-info p {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.calendar-info-text {
+  color: var(--text-soft);
+}
+
+/* ============================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================ */
+
+@media (max-width: 380px) {
+  .achievement-filter {
+    gap: 6px;
+  }
+  
+  .filter-btn {
+    padding: 6px 12px;
+    font-size: 0.65rem;
+  }
+  
+  .calendar-grid {
+    gap: 6px;
+  }
+  
+  .calendar-day-number {
+    font-size: 0.65rem;
+  }
+  
+  .calendar-day-reward {
+    font-size: 0.5rem;
+  }
+}
